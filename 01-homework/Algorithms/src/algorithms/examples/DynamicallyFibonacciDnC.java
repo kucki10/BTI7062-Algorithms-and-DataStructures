@@ -26,7 +26,7 @@ public class DynamicallyFibonacciDnC implements DynamicallyDivideAndConquerable<
 
     @Override
     public List<? extends DynamicallyDivideAndConquerable<Long>> decompose() {
-        ArrayList<DynamicallyDivideAndConquerable<Long>> directChildren = new ArrayList<>();
+        List<DynamicallyDivideAndConquerable<Long>> directChildren = new ArrayList<>();
 
         directChildren.add(new DynamicallyFibonacciDnC(n-2));
         directChildren.add(new DynamicallyFibonacciDnC(n-1));

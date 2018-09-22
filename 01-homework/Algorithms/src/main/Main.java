@@ -1,56 +1,24 @@
 package main;
 
-import algorithms.algorithms.helper.ExecutionTimer;
-import algorithms.examples.DynamicallyFibonacciDnC;
-import algorithms.examples.FibonacciDnC;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
-import java.util.HashMap;
-import java.util.Map;
 
-public class Main {
+public class Main extends Application {
 
     public static void main(String[] args) {
-
-        executeNormalFibonacci();
-
-        printNewLines();
-
-        executeDynamicallyFibonacci();
-
-        printNewLines();
-
-
+        launch(args);
     }
 
-    private static void printNewLines() {
-        System.out.println("");
-        System.out.println("");
-    }
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        BorderPane root = FXMLLoader.load(Main.class.getResource("view/Application.fxml"));
 
-
-    private static void executeNormalFibonacci() {
-        for (long i = 20; i < 30; i++) {
-            FibonacciDnC fib = new FibonacciDnC(i);
-
-            ExecutionTimer timer = new ExecutionTimer(() -> {
-                return fib.divideAndConquer();
-            });
-
-            System.out.println("Fibonnaci of " + i + " is: " + timer.result + " (took " + timer.time + " ns)");
-        }
-    }
-
-    private static void executeDynamicallyFibonacci() {
-        for (long i = 20; i < 30; i++) {
-            Map<Integer, Long> cache = new HashMap<>();
-
-            DynamicallyFibonacciDnC fib = new DynamicallyFibonacciDnC(i);
-
-            ExecutionTimer timer = new ExecutionTimer(() -> {
-                return fib.divideAndConquer(cache);
-            });
-
-            System.out.println("Memoized Fibonnaci of " + i + " is: " + timer.result + " (took " + timer.time + " ns)");
-        }
+        primaryStage.setScene(new Scene(root));
+        primaryStage.setTitle("Fibonacci - Performance");
+        primaryStage.show();
     }
 }
