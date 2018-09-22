@@ -3,6 +3,7 @@ package main;
 import algorithms.algorithms.helper.ExecutionTimer;
 import algorithms.examples.DynamicallyFibonacciDnC;
 import algorithms.examples.FibonacciDnC;
+import algorithms.examples.ParallelisedFibonacciDnC;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -13,6 +14,10 @@ import javafx.scene.control.TextField;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class ApplicationController {
 
@@ -79,6 +84,7 @@ public class ApplicationController {
                 for (long i = 0; i < n; i++) {
                     getFibonacciInStandardWay(i);
                     getFibonacciInMemoizedWay(i);
+                    getFibonacciInParallelisedWay(i);
                 }
 
                 return null;
@@ -137,6 +143,17 @@ public class ApplicationController {
         System.out.println("Memoized Fibonnaci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
 
         updateSeries(n, timer, memoizedSeries);
+    }
+
+    private void getFibonacciInParallelisedWay(long n) {
+        ParallelisedFibonacciDnC fib = new ParallelisedFibonacciDnC(n);
+
+        ExecutionTimer timer = new ExecutionTimer(() -> {
+            return fib.divideAndConquer(new ThreadPoolExecutor(5, 5, 10, TimeUnit.SECONDS, new SynchronousQueue<>()));
+        });
+        System.out.println("Threaded Fibonnaci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
+
+        updateSeries(n, timer, concurrentSeries);
     }
 
 }
