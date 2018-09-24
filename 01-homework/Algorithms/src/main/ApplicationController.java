@@ -81,7 +81,7 @@ public class ApplicationController {
             @Override
             protected Void call() throws Exception {
                 //Threaded stuff
-                for (long i = 0; i < n; i++) {
+                for (long i = 0; i <= n; i++) {
                     getFibonacciInStandardWay(i);
                     getFibonacciInMemoizedWay(i);
                     getFibonacciInParallelisedWay(i);
@@ -149,7 +149,7 @@ public class ApplicationController {
         ParallelisedFibonacciDnC fib = new ParallelisedFibonacciDnC(n);
 
         ExecutionTimer timer = new ExecutionTimer(() -> {
-            return fib.divideAndConquer(new ThreadPoolExecutor(5, 5, 10, TimeUnit.SECONDS, new SynchronousQueue<>()));
+            return fib.divideAndConquer(new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>()));
         });
         System.out.println("Threaded Fibonnaci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
 
