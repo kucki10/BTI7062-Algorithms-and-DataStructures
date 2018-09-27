@@ -18,6 +18,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class ApplicationController {
 
@@ -30,8 +31,6 @@ public class ApplicationController {
 	@FXML
 	private Button btnCalculate;
 
-	@FXML
-	private Button btnCancel;
 	
 	private final XYChart.Series<String, Long> standardSeries;
 	private final XYChart.Series<String, Long> concurrentSeries;
@@ -47,8 +46,6 @@ public class ApplicationController {
 	private void initialize() {
         lineChart.getXAxis().setLabel("Desired number");
         lineChart.getYAxis().setLabel("time in [ns]");
-
-        //lineChart.getYAxis().setAutoRanging(false);
 
 		lineChart.getData().add(standardSeries);
 		lineChart.getData().add(concurrentSeries);
@@ -79,42 +76,30 @@ public class ApplicationController {
         new Thread(new Task<Void>() {
 
             @Override
-            protected Void call() throws Exception {
+            protected Void call() {
                 //Threaded stuff
                 for (long i = 0; i <= n; i++) {
                     getFibonacciInStandardWay(i);
                     getFibonacciInMemoizedWay(i);
-                    getFibonacciInParallelisedWay(i);
+                    getFibonacciInParalellisedWay(i);
                 }
-
                 return null;
             }
 
             @Override
             protected void running() {
                 //Thread safe UI operations in here
-                btnCancel.setDisable(false);
                 btnCalculate.setDisable(true);
             }
 
             @Override
             protected void succeeded() {
                 //Thread safe UI operations in here
-                btnCancel.setDisable(true);
                 btnCalculate.setDisable(false);
             }
         }).start();
 	}
 	
-	
-	@FXML
-	private void onCancel() {
-	    System.out.println("Cancel the process");
-	    //TODO
-		//threads.forEach(CalculationThread::cancel);
-	}
-
-
     private void updateSeries(long n, ExecutionTimer timer, XYChart.Series<String, Long> series) {
         Platform.runLater(() -> {
             XYChart.Data<String, Long> newPoint = new XYChart.Data<>(Long.toString(n), timer.time);
@@ -125,10 +110,8 @@ public class ApplicationController {
 	private void getFibonacciInStandardWay(long n) {
         FibonacciDnC fib = new FibonacciDnC(n);
 
-        ExecutionTimer timer = new ExecutionTimer(() -> {
-            return fib.divideAndConquer();
-        });
-        System.out.println("Fibonnaci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
+        ExecutionTimer<Long> timer = new ExecutionTimer<>(() -> fib.divideAndConquer());
+        System.out.println("Simple Fibonacci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
 
         updateSeries(n, timer, standardSeries);
     }
@@ -137,21 +120,17 @@ public class ApplicationController {
         Map<Integer, Long> cache = new HashMap<>();
         DynamicallyFibonacciDnC fib = new DynamicallyFibonacciDnC(n);
 
-        ExecutionTimer timer = new ExecutionTimer(() -> {
-            return fib.divideAndConquer(cache);
-        });
-        System.out.println("Memoized Fibonnaci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
+        ExecutionTimer<Long> timer = new ExecutionTimer<>(() -> fib.divideAndConquer(cache));
+        System.out.println("Memoized Fibonacci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
 
         updateSeries(n, timer, memoizedSeries);
     }
 
-    private void getFibonacciInParallelisedWay(long n) {
+    private void getFibonacciInParalellisedWay(long n) {
         ParallelisedFibonacciDnC fib = new ParallelisedFibonacciDnC(n);
 
-        ExecutionTimer timer = new ExecutionTimer(() -> {
-            return fib.divideAndConquer(new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>()));
-        });
-        System.out.println("Threaded Fibonnaci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
+        ExecutionTimer<Long> timer = new ExecutionTimer<>(() -> fib.divideAndConquer(new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>())));
+        System.out.println("Threaded Fibonacci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
 
         updateSeries(n, timer, concurrentSeries);
     }
