@@ -7,7 +7,12 @@ This program was created as a homework assignment at the module BTI7055 Algorith
 Christian Nussbaum \<christian.nussbaum@protonmail.ch\> <br>
 Luca Berger \<kucki10@hotmail.com\>
 
+## Source Code
+The source code can be seen on the public repostiory:
+https://github.com/kucki10/BTI7062-Algorithms-and-DataStructures/tree/master/01-homework/Algorithms
+
 ## Instructions
+Execute these instructions inside the extracted folder. 
 
 ### Build
 ```
