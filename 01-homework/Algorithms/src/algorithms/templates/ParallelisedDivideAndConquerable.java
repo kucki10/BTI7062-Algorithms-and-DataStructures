@@ -17,34 +17,18 @@ public interface ParallelisedDivideAndConquerable<OutputType> extends DivideAndC
             return this.baseFun();
         }
 
-        List<? extends ParallelisedDivideAndConquerable<OutputType>> subcomponents = this.decompose();
+        List<? extends ParallelisedDivideAndConquerable<OutputType>> subComponents = this.decompose();
 
-        List<OutputType> intermediateResults = new ArrayList<OutputType>(subcomponents.size());
-        List<Future<OutputType>> futureResults = new ArrayList<>(subcomponents.size());
+        List<OutputType> intermediateResults = new ArrayList<OutputType>(subComponents.size());
+        List<Future<OutputType>> futureResults = new ArrayList<>(subComponents.size());
 
-
-        subcomponents.forEach(subcomponent-> {
-            //OutputType result = subcomponent.divideAndConquer();
+        subComponents.forEach(subComponent-> {
             try {
-                futureResults.add(executor.submit(() -> subcomponent.divideAndConquer(executor)));
+                futureResults.add(executor.submit(() -> subComponent.divideAndConquer(executor)));
             } catch (RejectedExecutionException exception) {
-                intermediateResults.add(subcomponent.divideAndConquer(executor));
+                intermediateResults.add(subComponent.divideAndConquer(executor));
             }
         });
-
-        // Wait for all future results
-        // future.get() is blocking so we need to check if its done
-
-        /*
-        while (!futureResults.stream().allMatch(Future::isDone)) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException exception) {
-                // ignored
-            }
-
-        }
-        */
 
         futureResults.forEach(x -> {
             try {
