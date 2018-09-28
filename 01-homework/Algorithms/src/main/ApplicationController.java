@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 
 import java.util.HashMap;
@@ -29,6 +30,15 @@ public class ApplicationController {
 	@FXML
 	private Button btnCalculate;
 
+	@FXML
+    private CheckBox cbStandard;
+
+	@FXML
+    private CheckBox cbMemoized;
+
+	@FXML
+    private CheckBox cbParallelized;
+
 	
 	private final XYChart.Series<String, Long> standardSeries;
 	private final XYChart.Series<String, Long> memoizedSeries;
@@ -43,7 +53,7 @@ public class ApplicationController {
 	
 	@FXML
 	private void initialize() {
-        lineChart.getXAxis().setLabel("Desired number");
+        lineChart.getXAxis().setLabel("Desired number Fib(n) - Result is logged in console");
         lineChart.getYAxis().setLabel("time in [ns]");
 
 		lineChart.getData().add(standardSeries);
@@ -54,11 +64,21 @@ public class ApplicationController {
         memoizedSeries.setName("Memoized");
 		parallelisedSeries.setName("Threaded");
 
+		cbStandard.setSelected(true);
+		cbMemoized.setSelected(true);
+		cbParallelized.setSelected(true);
+
         txtNumber.setText("20");
 	}
 	
 	@FXML
 	private void onCalculate() {
+	    //Clear the plot
+        standardSeries.getData().clear();
+        memoizedSeries.getData().clear();
+        parallelisedSeries.getData().clear();
+
+        //Read n from textField
 		long n;
 		try {
 			n = Long.parseLong(txtNumber.getText());
@@ -66,19 +86,37 @@ public class ApplicationController {
             System.err.println("Could not create number out of '" + txtNumber.getText() + "'");
             return;
 		} 
-		
-		standardSeries.getData().clear();
-		memoizedSeries.getData().clear();
-        parallelisedSeries.getData().clear();
+
+
+		//Save the options, which calculation method should run
+        //We need to save them, because they could change while calculating inside thread
+        boolean isStandardEnabled = cbStandard.isSelected();
+        boolean isMemoizedEnabled = cbMemoized.isSelected();
+        boolean isParallelizedEnabled = cbParallelized.isSelected();
+
+
+        //Check that at least one technique is enabled
+        if (!isStandardEnabled && !isMemoizedEnabled && !isParallelizedEnabled) {
+            System.err.println("Either one checkbox for Techniques must be enabled");
+            return;
+        }
 
         new Thread(new Task<Void>() {
             @Override
             protected Void call() {
                 //Threaded stuff
                 for (long i = 0; i <= n; i++) {
-                    getFibonacciInStandardWay(i);
-                    getFibonacciInMemoizedWay(i);
-                    getFibonacciInParalellisedWay(i);
+                    if (isStandardEnabled) {
+                        getFibonacciInStandardWay(i);
+                    }
+
+                    if (isMemoizedEnabled) {
+                        getFibonacciInMemoizedWay(i);
+                    }
+
+                    if (isParallelizedEnabled) {
+                        getFibonacciInParalellisedWay(i);
+                    }
                 }
                 return null;
             }
@@ -125,11 +163,14 @@ public class ApplicationController {
 
     private void getFibonacciInParalellisedWay(long n) {
         ParallelisedFibonacciDnC fib = new ParallelisedFibonacciDnC(n);
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
 
-        ExecutionTimer<Long> timer = new ExecutionTimer<>(() -> fib.divideAndConquer(new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>())));
+        ExecutionTimer<Long> timer = new ExecutionTimer<>(() -> fib.divideAndConquer(threadPoolExecutor));
         System.out.println("Threaded Fibonacci of " + n + " is: " + timer.result + " (took " + timer.time + " ns)");
 
         updateSeries(n, timer, parallelisedSeries);
+        //Shutdown thread pool, in order to stop pending threads
+        threadPoolExecutor.shutdownNow();
     }
 
 }

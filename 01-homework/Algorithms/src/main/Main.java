@@ -16,8 +16,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         BorderPane root = FXMLLoader.load(Main.class.getResource("view/Application.fxml"));
-
         primaryStage.setScene(new Scene(root));
+        primaryStage.setWidth(800);
         primaryStage.setTitle("Fibonacci - Performance");
         primaryStage.show();
     }
