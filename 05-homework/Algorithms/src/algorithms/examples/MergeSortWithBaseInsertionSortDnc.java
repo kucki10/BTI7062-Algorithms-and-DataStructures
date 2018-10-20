@@ -2,37 +2,37 @@ package algorithms.examples;
 
 import algorithms.algorithms.helper.SortWrapper;
 import algorithms.templates.DivideAndConquerable;
-import algorithms.templates.ParallelisedDivideAndConquerable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParallelisedMergeSort implements ParallelisedDivideAndConquerable<SortWrapper> {
+public class MergeSortWithBaseInsertionSortDnc implements DivideAndConquerable<SortWrapper> {
 
     private SortWrapper data;
 
-    public ParallelisedMergeSort(SortWrapper data) {
+    public MergeSortWithBaseInsertionSortDnc(SortWrapper data) {
         this.data = data;
     }
 
     @Override
     public boolean isBasic() {
-        return this.data.getRight() - this.data.getLeft() < 1;
+        return this.data.getRight() - this.data.getLeft() <= 15;
     }
 
     @Override
     public SortWrapper baseFun() {
+        InsertionSort insertionSort = new InsertionSort();
+        insertionSort.sort(this.data);
         return this.data;
     }
 
     @Override
-    public List<? extends ParallelisedDivideAndConquerable<SortWrapper>> decompose() {
-
+    public List<? extends DivideAndConquerable<SortWrapper>> decompose() {
         int middle = (this.data.getLeft() + this.data.getRight()) / 2;
 
-        ArrayList<ParallelisedMergeSort> halfs = new ArrayList<>();
-        halfs.add(new ParallelisedMergeSort(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator())));
-        halfs.add(new ParallelisedMergeSort(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator())));
+        ArrayList<MergeSortWithBaseInsertionSortDnc> halfs = new ArrayList<>();
+        halfs.add(new MergeSortWithBaseInsertionSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator())));
+        halfs.add(new MergeSortWithBaseInsertionSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator())));
 
         return halfs;
     }

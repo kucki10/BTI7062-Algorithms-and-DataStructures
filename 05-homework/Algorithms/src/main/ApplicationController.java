@@ -4,7 +4,8 @@ import algorithms.algorithms.helper.ExecutionTimer;
 import algorithms.algorithms.helper.IntComparator;
 import algorithms.algorithms.helper.SortWrapper;
 import algorithms.examples.MergeSortDnc;
-import algorithms.examples.ParallelisedMergeSort;
+import algorithms.examples.MergeSortWithBaseInsertionSortDnc;
+import algorithms.examples.ParallelisedMergeSortDnc;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -92,30 +93,37 @@ public class ApplicationController {
                 //Threaded stuff
                 Comparator comparator = new IntComparator();
 
-                int i = 20;
-                //for (int i = 20; i <= 400 ; i += 20) {
+                //int i = 20;
+                for (int i = 20; i <= 400 ; i += 20) {
+                //for (int i = 10; i <= 20 ; i += 10) {
+
+                    System.out.println(String.format("New Sort run with %d elements\n", i));
+
                     Object[] unsortedData = getRandomIntegerArray(i);
 
-                    /*
                     if (isStandardEnabled) {
-                        standardMergeSort(unsortedData, comparator);
-                    }
-                    */
-
-                    if (isMultiThreadedEnabled) {
-                        multiThreadedMergeSort(unsortedData, comparator);
+                        Object[] unsortedDataForStandard = new Object[i];
+                        System.arraycopy(unsortedData, 0, unsortedDataForStandard, 0, i);
+                        standardMergeSort(unsortedDataForStandard, comparator);
                     }
 
                     /*
-                    if (isMemoizedEnabled) {
-                        getFibonacciInMemoizedWay(i);
-                    }
-
-                    if (isParallelizedEnabled) {
-                        getFibonacciInParalellisedWay(i);
+                    if (isMultiThreadedEnabled) {
+                        Object[] unsortedDataForMultiThreaded = new Object[i];
+                        System.arraycopy(unsortedData, 0, unsortedDataForMultiThreaded, 0, i);
+                        multiThreadedMergeSort(unsortedDataForMultiThreaded, comparator);
                     }
                     */
-                //}
+
+                    if (isInsertionSortAsBaseEnabled) {
+                        Object[] unsortedDataForInsertionSortAsBase = new Object[i];
+                        System.arraycopy(unsortedData, 0, unsortedDataForInsertionSortAsBase, 0, i);
+                        insertionSortAsBaseMergeSort(unsortedDataForInsertionSortAsBase, comparator);
+                    }
+
+                    System.out.println(String.format("\nSort run with %d elements finished!\n\n", i));
+
+                }
 
                 return null;
             }
@@ -142,47 +150,60 @@ public class ApplicationController {
     }
 
 	private void standardMergeSort(Object[] data, Comparator sorter) {
-        System.out.println("Unsorted data \n" + Arrays.toString(data));
+        System.out.println(" Unsorted data \n " + Arrays.toString(data));
 
         MergeSortDnc sort = new MergeSortDnc(new SortWrapper(data, sorter));
         ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
 
         SortWrapper result = timer.result;
-        System.out.println("Sorted data (took " + timer.time + "ns) \n" + Arrays.toString(result.getData()));
+        System.out.println(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
 
         try {
             verifyOrder(result.getData(), sorter);
         } catch (Exception ex) {
-            System.err.println(String.format("Standard  Algorithm failed!\n%s", ex.getMessage()));
+            System.err.println(String.format("Standard  Algorithm failed on sorting with %d elements!\n%s", data.length, ex.getMessage()));
         }
 
         updateSeries(data.length, timer, standardSeries);
     }
 
     private void multiThreadedMergeSort(Object[] data, Comparator sorter) {
-        System.out.println("Unsorted data \n" + Arrays.toString(data));
+        System.out.println(" Unsorted data \n " + Arrays.toString(data));
 
-        ParallelisedMergeSort sort = new ParallelisedMergeSort(new SortWrapper(data, sorter));
+        ParallelisedMergeSortDnc sort = new ParallelisedMergeSortDnc(new SortWrapper(data, sorter));
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
 
         ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(() -> sort.divideAndConquer(threadPoolExecutor));
 
         SortWrapper result = timer.result;
-        System.out.println("Sorted data (took " + timer.time + "ns) \n" + Arrays.toString(result.getData()));
+        System.out.println(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
 
         try {
             verifyOrder(result.getData(), sorter);
         } catch (Exception ex) {
-            System.err.println(String.format("Multithreaded Algorithm failed!\n%s", ex.getMessage()));
+            System.err.println(String.format(" Multithreaded Algorithm failed on sorting with %d elements!\n%s", data.length, ex.getMessage()));
         }
 
         updateSeries(data.length, timer, threadedSeries);
-
-
-
     }
 
+    private void insertionSortAsBaseMergeSort(Object[] data, Comparator sorter) {
+        System.out.println(" Unsorted data \n " + Arrays.toString(data));
 
+        MergeSortWithBaseInsertionSortDnc sort = new MergeSortWithBaseInsertionSortDnc(new SortWrapper(data, sorter));
+        ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
+
+        SortWrapper result = timer.result;
+        System.out.println(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
+
+        try {
+            verifyOrder(result.getData(), sorter);
+        } catch (Exception ex) {
+            System.err.println(String.format(" MergeSortWithBaseInsertionSort Algorithm failed on sorting with %d elements!\n%s", data.length, ex.getMessage()));
+        }
+
+        updateSeries(data.length, timer, insertionSortAsBaseSeries);
+    }
 
 
     private Object[] getRandomIntegerArray(int arraySize) {

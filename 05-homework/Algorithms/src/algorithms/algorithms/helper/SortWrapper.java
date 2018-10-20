@@ -48,4 +48,12 @@ public class SortWrapper {
     public Comparator getComparator() {
         return comparator;
     }
+
+    public void setLeft(int newLeft){
+        this.left = newLeft;
+    }
+
+    public void setRight(int newRight) {
+        this.right = newRight;
+    }
 }
