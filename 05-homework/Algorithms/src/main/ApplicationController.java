@@ -3,7 +3,8 @@ package main;
 import algorithms.algorithms.helper.ExecutionTimer;
 import algorithms.algorithms.helper.IntComparator;
 import algorithms.algorithms.helper.SortWrapper;
-import algorithms.examples.MergeSort;
+import algorithms.examples.MergeSortDnc;
+import algorithms.examples.ParallelisedMergeSort;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -11,9 +12,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextField;
 
-import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
 import java.util.*;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -50,8 +49,8 @@ public class ApplicationController {
 	
 	@FXML
 	private void initialize() {
-        lineChart.getXAxis().setLabel("Desired number Fib(n) - Result is logged in console");
-        lineChart.getYAxis().setLabel("time in [ns]");
+        lineChart.getXAxis().setLabel("Array size of unsorted array - Result is logged in console");
+        lineChart.getYAxis().setLabel("time used to sort in [ns]");
 
 		lineChart.getData().add(standardSeries);
 		lineChart.getData().add(threadedSeries);
@@ -83,7 +82,7 @@ public class ApplicationController {
 
         //Check that at least one technique is enabled
         if (!isStandardEnabled && !isMultiThreadedEnabled && !isInsertionSortAsBaseEnabled) {
-            System.err.println("Either one checkbox for Techniques must be enabled");
+            System.err.println("Either one checkbox for techniques must be enabled");
             return;
         }
 
@@ -91,8 +90,20 @@ public class ApplicationController {
             @Override
             protected Void call() {
                 //Threaded stuff
+                Comparator comparator = new IntComparator();
+
+                int i = 20;
+                //for (int i = 20; i <= 400 ; i += 20) {
+                    Object[] unsortedData = getRandomIntegerArray(i);
+
+                    /*
                     if (isStandardEnabled) {
-                        standardMergeSort();
+                        standardMergeSort(unsortedData, comparator);
+                    }
+                    */
+
+                    if (isMultiThreadedEnabled) {
+                        multiThreadedMergeSort(unsortedData, comparator);
                     }
 
                     /*
@@ -104,6 +115,8 @@ public class ApplicationController {
                         getFibonacciInParalellisedWay(i);
                     }
                     */
+                //}
+
                 return null;
             }
 
@@ -128,22 +141,48 @@ public class ApplicationController {
         });
     }
 
-	private void standardMergeSort() {
-        Object[] data = getRandomIntegerArray(100);
-        Comparator sorter = new IntComparator();
+	private void standardMergeSort(Object[] data, Comparator sorter) {
+        System.out.println("Unsorted data \n" + Arrays.toString(data));
 
-        System.out.println("Unsorted data  : " + Arrays.toString(data) + "");
+        MergeSortDnc sort = new MergeSortDnc(new SortWrapper(data, sorter));
+        ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
 
-        MergeSort sort = new MergeSort(new SortWrapper(data, new Object[data.length], 0, data.length - 1, sorter));
-        SortWrapper result = sort.divideAndConquer();
+        SortWrapper result = timer.result;
+        System.out.println("Sorted data (took " + timer.time + "ns) \n" + Arrays.toString(result.getData()));
 
-        System.out.println("Sorted data    : " + Arrays.toString(result.getData()) + "");
         try {
             verifyOrder(result.getData(), sorter);
         } catch (Exception ex) {
-            System.err.println(String.format("Algorithm failed!\n%s", ex.getMessage()));
+            System.err.println(String.format("Standard  Algorithm failed!\n%s", ex.getMessage()));
         }
+
+        updateSeries(data.length, timer, standardSeries);
     }
+
+    private void multiThreadedMergeSort(Object[] data, Comparator sorter) {
+        System.out.println("Unsorted data \n" + Arrays.toString(data));
+
+        ParallelisedMergeSort sort = new ParallelisedMergeSort(new SortWrapper(data, sorter));
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
+
+        ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(() -> sort.divideAndConquer(threadPoolExecutor));
+
+        SortWrapper result = timer.result;
+        System.out.println("Sorted data (took " + timer.time + "ns) \n" + Arrays.toString(result.getData()));
+
+        try {
+            verifyOrder(result.getData(), sorter);
+        } catch (Exception ex) {
+            System.err.println(String.format("Multithreaded Algorithm failed!\n%s", ex.getMessage()));
+        }
+
+        updateSeries(data.length, timer, threadedSeries);
+
+
+
+    }
+
+
 
 
     private Object[] getRandomIntegerArray(int arraySize) {

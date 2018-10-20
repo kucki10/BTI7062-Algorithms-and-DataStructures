@@ -10,6 +10,11 @@ public class SortWrapper {
     private int right;
     private final Comparator comparator;
 
+    public SortWrapper(Object[] data, Comparator comparator)
+    {
+        this(data, new Object[data.length], 0, data.length - 1, comparator);
+    }
+
     public SortWrapper(Object[] data, Object[] aux, int left, int right, Comparator comparator) {
         this.data = data;
         this.aux = aux;
@@ -17,6 +22,7 @@ public class SortWrapper {
         this.right = right;
         this.comparator = comparator;
     }
+
 
 
     public Object[] getData() {

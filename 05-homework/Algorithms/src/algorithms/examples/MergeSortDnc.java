@@ -6,11 +6,11 @@ import algorithms.templates.DivideAndConquerable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MergeSort implements DivideAndConquerable<SortWrapper> {
+public class MergeSortDnc implements DivideAndConquerable<SortWrapper> {
 
     private SortWrapper data;
 
-    public MergeSort(SortWrapper data) {
+    public MergeSortDnc(SortWrapper data) {
         this.data = data;
     }
 
@@ -28,23 +28,10 @@ public class MergeSort implements DivideAndConquerable<SortWrapper> {
     public List<? extends DivideAndConquerable<SortWrapper>> decompose() {
         int middle = (this.data.getLeft() + this.data.getRight()) / 2;
 
-        /*
-        //FIRST try
-        Object[] leftHalf = new Object[middle];
-        System.arraycopy(this.data.getData(), 0, leftHalf, 0, middle);
+        ArrayList<MergeSortDnc> halfs = new ArrayList<>();
+        halfs.add(new MergeSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator())));
+        halfs.add(new MergeSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator())));
 
-        Object[] rightHalf = new Object[length - middle];
-        System.arraycopy(this.data.getData(), middle, rightHalf, 0, length - middle);
-
-
-        ArrayList<MergeSort> halfs = new ArrayList<>();
-        halfs.add(new MergeSort(new SortWrapper(leftHalf, new Object[leftHalf.length], 0, leftHalf.length -1, this.data.getComparator())));
-        halfs.add(new MergeSort(new SortWrapper(rightHalf, new Object[rightHalf.length], 0, rightHalf.length - 1, this.data.getComparator())));
-        */
-
-        ArrayList<MergeSort> halfs = new ArrayList<>();
-        halfs.add(new MergeSort(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator())));
-        halfs.add(new MergeSort(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator())));
         return halfs;
     }
 

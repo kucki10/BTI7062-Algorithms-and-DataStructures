@@ -18,7 +18,7 @@ public class Main extends Application {
         BorderPane root = FXMLLoader.load(Main.class.getResource("view/Application.fxml"));
         primaryStage.setScene(new Scene(root));
         primaryStage.setWidth(800);
-        primaryStage.setTitle("MergeSort - Performance");
+        primaryStage.setTitle("MergeSortDnc - Performance");
         primaryStage.show();
     }
 }
