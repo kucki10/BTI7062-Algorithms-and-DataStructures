@@ -51,6 +51,7 @@
             <CheckBox fx:id="cbStandard" mnemonicParsing="false" text="Normal" />
             <CheckBox fx:id="cbMultiThreaded" mnemonicParsing="false" text="Multi-threaded" />
             <CheckBox fx:id="cbInsertionSortAsBase" mnemonicParsing="false" text="InsertionSort as base" />
+            <CheckBox fx:id="cbMergeSortWithDynamicMerger" mnemonicParsing="false" text="With dynamic Merger" />
          </children>
          <padding>
             <Insets left="10.0" />
