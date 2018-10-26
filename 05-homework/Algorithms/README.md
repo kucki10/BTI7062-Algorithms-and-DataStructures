@@ -12,11 +12,18 @@ The source code can be seen on the public repostiory:
 https://github.com/kucki10/BTI7062-Algorithms-and-DataStructures/tree/master/05-homework/Algorithms
 
 ## Instructions
-Execute these instructions inside the extracted folder. 
+Execute these instructions inside the extracted folder inside "code". 
+In order to build the application correctly, the dependency "Commons-lang" needs to be present. <br/>
+So therefore rename the file in "code/lib" to commons-lang3-3.0.1.jar. <br />
+If there is no file inside this folder, it got removed by the Mail Server
+You can manually download it from here: 
+http://central.maven.org/maven2/org/apache/commons/commons-lang3/3.0.1/commons-lang3-3.0.1.jar
+
 
 ### Build
 On windows use  ; in -cp as separator <br />
 On other OS use : in -cp as separator
+
 ```
 > mkdir bin
 > javac -d bin -cp ".;./lib/commons-lang3-3.0.1.jar" -sourcepath src src/main/*.java
@@ -38,5 +45,10 @@ On other OS use : in -cp as separator
 > java -jar MergeSort.jar
 ```
 
-### Lessons learned
-- TODO
+
+### Already builded version
+Under the folder "code/bin/prebuilt", there is already a builded version. <br />
+If the bin folder is empty, the Mail Server removed the built.
+You can also download the builded version under:
+https://github.com/kucki10/BTI7062-Algorithms-and-DataStructures/tree/master/05-homework/Algorithms/bin/prebuilt <br />
+Make sure both jars are downloaded.
