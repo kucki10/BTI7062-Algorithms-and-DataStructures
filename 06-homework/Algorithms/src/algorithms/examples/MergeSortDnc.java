@@ -29,8 +29,8 @@ public class MergeSortDnc implements DivideAndConquerable<SortWrapper> {
         int middle = (this.data.getLeft() + this.data.getRight()) / 2;
 
         ArrayList<MergeSortDnc> halfs = new ArrayList<>();
-        halfs.add(new MergeSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator())));
-        halfs.add(new MergeSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator())));
+        //halfs.add(new MergeSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator())));
+        //halfs.add(new MergeSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator())));
 
         return halfs;
     }
@@ -46,17 +46,17 @@ public class MergeSortDnc implements DivideAndConquerable<SortWrapper> {
 
         while (i <= leftPart.getRight() && j <= rightPart.getRight()) {
             if (this.data.getComparator().compare(this.data.getData()[i], this.data.getData()[j]) < 0) {
-                this.data.getAux()[k++] = this.data.getData()[i++];
+               // this.data.getAux()[k++] = this.data.getData()[i++];
             } else {
-                this.data.getAux()[k++] = this.data.getData()[j++];
+               // this.data.getAux()[k++] = this.data.getData()[j++];
             }
         }
 
         //Copy leftovers into Aux
-        System.arraycopy(this.data.getData(), i, this.data.getAux(), k, leftPart.getRight() - i + 1);
+        //System.arraycopy(this.data.getData(), i, this.data.getAux(), k, leftPart.getRight() - i + 1);
 
         //Copy sorted sub parts back to Data
-        System.arraycopy(this.data.getAux(), leftPart.getLeft(), this.data.getData(), leftPart.getLeft(), j-leftPart.getLeft());
+        //System.arraycopy(this.data.getAux(), leftPart.getLeft(), this.data.getData(), leftPart.getLeft(), j-leftPart.getLeft());
 
         return this.data;
     }

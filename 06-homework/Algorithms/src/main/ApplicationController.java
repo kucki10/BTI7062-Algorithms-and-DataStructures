@@ -36,19 +36,19 @@ public class ApplicationController {
     private CheckBox cbInsertionSortAsBase;
 
     @FXML
-    private CheckBox cbMergeSortWithDynamicMerger;
+    private CheckBox cbQuickSortWithDynamicMerger;
 	
 	private final XYChart.Series<String, Long> standardSeries;
 	private final XYChart.Series<String, Long> threadedSeries;
     private final XYChart.Series<String, Long> insertionSortAsBaseSeries;
-    private final XYChart.Series<String, Long> mergeSortWithDynamicMergerSeries;
+    private final XYChart.Series<String, Long> quickSortWithDynamicMergerSeries;
 
 
 	public ApplicationController() {
         standardSeries = new XYChart.Series<>();
         threadedSeries = new XYChart.Series<>();
         insertionSortAsBaseSeries = new XYChart.Series<>();
-        mergeSortWithDynamicMergerSeries = new XYChart.Series<>();
+        quickSortWithDynamicMergerSeries = new XYChart.Series<>();
     }
 	
 	@FXML
@@ -59,18 +59,18 @@ public class ApplicationController {
 		lineChart.getData().add(standardSeries);
 		lineChart.getData().add(threadedSeries);
         lineChart.getData().add(insertionSortAsBaseSeries);
-        lineChart.getData().add(mergeSortWithDynamicMergerSeries);
+        lineChart.getData().add(quickSortWithDynamicMergerSeries);
 
 		standardSeries.setName("Standard");
         threadedSeries.setName("Multi-threaded");
         insertionSortAsBaseSeries.setName("InsertionSort as Base function");
-        mergeSortWithDynamicMergerSeries.setName("MergeSort with dynamic merger");
+        quickSortWithDynamicMergerSeries.setName("QuickSort with dynamic merger");
 
 
 		cbStandard.setSelected(true);
 		cbMultiThreaded.setSelected(true);
 		cbInsertionSortAsBase.setSelected(true);
-		cbMergeSortWithDynamicMerger.setSelected(true);
+		cbQuickSortWithDynamicMerger.setSelected(true);
 	}
 	
 	@FXML
@@ -79,7 +79,7 @@ public class ApplicationController {
         standardSeries.getData().clear();
         threadedSeries.getData().clear();
         insertionSortAsBaseSeries.getData().clear();
-        mergeSortWithDynamicMergerSeries.getData().clear();
+        quickSortWithDynamicMergerSeries.getData().clear();
 
 
 		//Save the options, which calculation method should run
@@ -87,11 +87,11 @@ public class ApplicationController {
         boolean isStandardEnabled = cbStandard.isSelected();
         boolean isMultiThreadedEnabled = cbMultiThreaded.isSelected();
         boolean isInsertionSortAsBaseEnabled = cbInsertionSortAsBase.isSelected();
-        boolean isMergeSortWithDynamicMergerEnabled = cbMergeSortWithDynamicMerger.isSelected();
+        boolean isQuickSortWithDynamicMergerEnabled = cbQuickSortWithDynamicMerger.isSelected();
 
 
         //Check that at least one technique is enabled
-        if (!isStandardEnabled && !isMultiThreadedEnabled && !isInsertionSortAsBaseEnabled && !isMergeSortWithDynamicMergerEnabled) {
+        if (!isStandardEnabled && !isMultiThreadedEnabled && !isInsertionSortAsBaseEnabled && !isQuickSortWithDynamicMergerEnabled) {
             System.err.println("Either one checkbox for techniques must be enabled");
             return;
         }
@@ -113,7 +113,7 @@ public class ApplicationController {
                     if (isStandardEnabled) {
                         Object[] unsortedDataForStandard = new Object[i];
                         System.arraycopy(unsortedData, 0, unsortedDataForStandard, 0, i);
-                        standardMergeSort(unsortedDataForStandard, comparator);
+                        standardQuickSort(unsortedDataForStandard, comparator);
                     }
 
                     /*
@@ -123,19 +123,20 @@ public class ApplicationController {
                         multiThreadedMergeSort(unsortedDataForMultiThreaded, comparator);
                     }
                     */
-
+                    /*
                     if (isInsertionSortAsBaseEnabled) {
                         Object[] unsortedDataForInsertionSortAsBase = new Object[i];
                         System.arraycopy(unsortedData, 0, unsortedDataForInsertionSortAsBase, 0, i);
                         insertionSortAsBaseMergeSort(unsortedDataForInsertionSortAsBase, comparator);
                     }
-
-                    if (isMergeSortWithDynamicMergerEnabled) {
+                    */
+                    /*
+                    if (isQuickSortWithDynamicMergerEnabled) {
                         Object[] unsortedDataForDynamicMerger = new Object[i];
                         System.arraycopy(unsortedData, 0, unsortedDataForDynamicMerger, 0, i);
                         mergeSortWithDynamicMerger(unsortedDataForDynamicMerger, comparator);
                     }
-
+                    */
                     System.out.println(String.format("\nSort run with %d elements finished!\n\n", i));
 
                 }
@@ -164,10 +165,10 @@ public class ApplicationController {
         });
     }
 
-	private void standardMergeSort(Object[] data, Comparator sorter) {
+	private void standardQuickSort(Object[] data, Comparator sorter) {
         System.out.println(" Unsorted data \n " + Arrays.toString(data));
 
-        MergeSortDnc sort = new MergeSortDnc(new SortWrapper(data, sorter));
+        QuickSortDnc sort = new QuickSortDnc(new SortWrapper(data, sorter));
         ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
 
         SortWrapper result = timer.result;
@@ -180,8 +181,9 @@ public class ApplicationController {
         }
 
         updateSeries(data.length, timer, standardSeries);
+        System.out.println("QuickSort finished");
     }
-
+    /*
     private void multiThreadedMergeSort(Object[] data, Comparator sorter) {
         System.out.println(" Unsorted data \n " + Arrays.toString(data));
 
@@ -238,7 +240,7 @@ public class ApplicationController {
 
         updateSeries(data.length, timer, mergeSortWithDynamicMergerSeries);
     }
-
+    */
 
     private Object[] getRandomIntegerArray(int arraySize) {
 	    Object[] data = new Object[arraySize];

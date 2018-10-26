@@ -32,8 +32,8 @@ public class MergeSortWithDynamicMergerDnc implements DivideAndConquerable<SortW
         int middle = (this.data.getLeft() + this.data.getRight()) / 2;
 
         ArrayList<MergeSortWithDynamicMergerDnc> halfs = new ArrayList<>();
-        halfs.add(new MergeSortWithDynamicMergerDnc(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator()), this.merger));
-        halfs.add(new MergeSortWithDynamicMergerDnc(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator()), this.merger));
+        //halfs.add(new MergeSortWithDynamicMergerDnc(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator()), this.merger));
+        //halfs.add(new MergeSortWithDynamicMergerDnc(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator()), this.merger));
 
         return halfs;
     }
