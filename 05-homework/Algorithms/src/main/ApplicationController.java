@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -102,12 +103,9 @@ public class ApplicationController {
                 //Threaded stuff
                 Comparator comparator = new IntComparator();
 
-                //int i = 20;
-                for (int i = 20; i <= 400 ; i += 20) {
-                //for (int i = 10; i <= 20 ; i += 10) {
+                for (int i = 20; i <= 200 ; i += 10) {
 
                     System.out.println(String.format("New Sort run with %d elements\n", i));
-
                     Object[] unsortedData = getRandomIntegerArray(i);
 
                     if (isStandardEnabled) {
@@ -116,13 +114,11 @@ public class ApplicationController {
                         standardMergeSort(unsortedDataForStandard, comparator);
                     }
 
-                    /*
                     if (isMultiThreadedEnabled) {
                         Object[] unsortedDataForMultiThreaded = new Object[i];
                         System.arraycopy(unsortedData, 0, unsortedDataForMultiThreaded, 0, i);
                         multiThreadedMergeSort(unsortedDataForMultiThreaded, comparator);
                     }
-                    */
 
                     if (isInsertionSortAsBaseEnabled) {
                         Object[] unsortedDataForInsertionSortAsBase = new Object[i];
@@ -186,7 +182,7 @@ public class ApplicationController {
         System.out.println(" Unsorted data \n " + Arrays.toString(data));
 
         ParallelisedMergeSortDnc sort = new ParallelisedMergeSortDnc(new SortWrapper(data, sorter));
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
 
         ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(() -> sort.divideAndConquer(threadPoolExecutor));
 

@@ -5,6 +5,7 @@ import algorithms.templates.ParallelisedDivideAndConquerable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class ParallelisedMergeSortDnc implements ParallelisedDivideAndConquerable<SortWrapper> {
 
@@ -29,7 +30,7 @@ public class ParallelisedMergeSortDnc implements ParallelisedDivideAndConquerabl
 
         int middle = (this.data.getLeft() + this.data.getRight()) / 2;
 
-        ArrayList<ParallelisedMergeSortDnc> halfs = new ArrayList<>();
+        List<ParallelisedMergeSortDnc> halfs = new Vector<>();
         halfs.add(new ParallelisedMergeSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), this.data.getLeft(), middle, this.data.getComparator())));
         halfs.add(new ParallelisedMergeSortDnc(new SortWrapper(this.data.getData(), this.data.getAux(), middle + 1, this.data.getRight(), this.data.getComparator())));
 
