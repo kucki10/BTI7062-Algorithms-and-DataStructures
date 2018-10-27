@@ -163,7 +163,7 @@ public class ApplicationController {
         System.out.println(" Unsorted data \n " + Arrays.toString(data));
 
         ParallelisedQuickSortDnc sort = new ParallelisedQuickSortDnc(new SortWrapper(data, sorter));
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 10, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
 
         ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(() -> sort.divideAndConquer(threadPoolExecutor));
 
