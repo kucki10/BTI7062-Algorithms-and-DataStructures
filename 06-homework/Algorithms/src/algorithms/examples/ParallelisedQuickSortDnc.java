@@ -2,16 +2,17 @@ package algorithms.examples;
 
 import algorithms.algorithms.helper.SortWrapper;
 import algorithms.templates.DivideAndConquerable;
+import algorithms.templates.ParallelisedDivideAndConquerable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class QuickSortDnc implements DivideAndConquerable<SortWrapper> {
+public class ParallelisedQuickSortDnc implements ParallelisedDivideAndConquerable<SortWrapper> {
 
     private SortWrapper data;
 
-    public QuickSortDnc(SortWrapper data) {
+    public ParallelisedQuickSortDnc(SortWrapper data) {
         this.data = data;
     }
 
@@ -26,12 +27,12 @@ public class QuickSortDnc implements DivideAndConquerable<SortWrapper> {
     }
 
     @Override
-    public List<? extends DivideAndConquerable<SortWrapper>> decompose() {
+    public List<? extends ParallelisedDivideAndConquerable<SortWrapper>> decompose() {
         swap(getMedianOfThree(this.data.getLeft(), this.data.getRight(), this.data.getComparator()), this.data.getRight());
         int mid = partition(this.data.getLeft(), this.data.getRight(), this.data.getComparator());
-        ArrayList<QuickSortDnc> halfs = new ArrayList<>();
-        halfs.add(new QuickSortDnc(new SortWrapper(this.data.getData(), this.data.getLeft(), mid - 1, this.data.getComparator())));
-        halfs.add(new QuickSortDnc(new SortWrapper(this.data.getData(), mid + 1, this.data.getRight(), this.data.getComparator())));
+        ArrayList<ParallelisedQuickSortDnc> halfs = new ArrayList<>();
+        halfs.add(new ParallelisedQuickSortDnc(new SortWrapper(this.data.getData(), this.data.getLeft(), mid - 1, this.data.getComparator())));
+        halfs.add(new ParallelisedQuickSortDnc(new SortWrapper(this.data.getData(), mid + 1, this.data.getRight(), this.data.getComparator())));
 
         return halfs;
     }
