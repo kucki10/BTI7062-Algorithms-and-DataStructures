@@ -49,9 +49,13 @@ https://github.com/kucki10/BTI7062-Algorithms-and-DataStructures/tree/master/06-
 - Using the average of multiple tries for same task with same data, removes the outliers <br />
   (This makes the different sort algorithms more comparable)
    
+- **InsertionSort as base**
+  - InsertionSort as base method is the fastest of these three algorithms.
+  - 
+   
 - **First try of multithreaded QuickSort**
-  - The multithreaded implementation, was even slower than the singlethreaded version.
-  - This must be due to the fact, that the overhead of generating / managing threads is just to heavy.
+  - The multithreaded implementation was even slower than the singlethreaded version.
+  - This must be due to the fact, that the overhead of generating / managing threads is just too heavy.
   - **Note:** The implementation always used a thread if there was one available (ThreadPool)
   
 - **Multithreaded QuickSort after optimization**

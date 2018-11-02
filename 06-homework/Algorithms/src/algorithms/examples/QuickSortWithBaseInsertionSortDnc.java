@@ -18,7 +18,7 @@ public class QuickSortWithBaseInsertionSortDnc implements DivideAndConquerable<S
 
     @Override
     public boolean isBasic() {
-        return this.data.getRight() - this.data.getLeft() <= 15;
+        return this.data.getRight() - this.data.getLeft() <= 40;
     }
 
     @Override
