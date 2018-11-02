@@ -42,3 +42,22 @@ You just need to rename the extension to "jar". <br />
 If the bin folder is empty, the Mail Server removed the built.
 You can also download the builded version under:
 https://github.com/kucki10/BTI7062-Algorithms-and-DataStructures/tree/master/06-homework/Algorithms/bin <br />
+
+
+
+## Lessons learned
+- Using the average of multiple tries for same task with same data, removes the outliers <br />
+  (This makes the different sort algorithms more comparable)
+   
+- **First try of multithreaded QuickSort**
+  - The multithreaded implementation, was even slower than the singlethreaded version.
+  - This must be due to the fact, that the overhead of generating / managing threads is just to heavy.
+  - **Note:** The implementation always used a thread if there was one available (ThreadPool)
+  
+- **Multithreaded QuickSort after optimization**
+  - The multithreaded implementation is now sometimes a bit faster than the singlethreaded version.
+  - **But:** It is not much faster than the singlethreaded solution.
+  - This is due to the fact, that in the first iteration of the Quicksort all elements will be compared once. <br /> 
+    (This happens always on one thread & is much work to do) <br />
+    After the first iteration, the following iterations will run in separate threads, and could therefore save some time.
+  - **Note:** The implementation does now only start a thread if there is one available (ThreadPool) AND the compare length is within some limit

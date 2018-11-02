@@ -28,6 +28,11 @@ public class ParallelisedQuickSortDnc implements ParallelisedDivideAndConquerabl
     }
 
     @Override
+    public boolean isBigEnoughToMultiThread() {
+        return this.data.getRight() - this.data.getLeft() > 750;
+    }
+
+    @Override
     public List<? extends ParallelisedDivideAndConquerable<SortWrapper>> decompose() {
         int median = QuickSortHelper.getMedianOfThree(this.data);
         QuickSortHelper.swap(this.data, median, this.data.getRight());

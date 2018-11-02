@@ -1,5 +1,6 @@
 package main;
 
+import algorithms.algorithms.helper.ConsoleWriteWrapper;
 import algorithms.algorithms.helper.ExecutionTimer;
 import algorithms.algorithms.helper.IntComparator;
 import algorithms.algorithms.helper.SortWrapper;
@@ -34,7 +35,12 @@ public class ApplicationController {
 
 	@FXML
     private CheckBox cbInsertionSortAsBase;
-	
+
+	@FXML
+    private CheckBox cbEnableLogs;
+
+	private int verificationCount = 20;
+
 	private final XYChart.Series<String, Long> standardSeries;
 	private final XYChart.Series<String, Long> threadedSeries;
     private final XYChart.Series<String, Long> insertionSortAsBaseSeries;
@@ -82,39 +88,32 @@ public class ApplicationController {
             return;
         }
 
+        ConsoleWriteWrapper consoleWriter = new ConsoleWriteWrapper(cbEnableLogs.isSelected());
+
         new Thread(new Task<Void>() {
             @Override
             protected Void call() {
                 //Threaded stuff
                 Comparator comparator = new IntComparator();
 
-                //int i = 20;
-                for (int i = 20; i <= 400 ; i += 20) {
-                //for (int i = 10; i <= 20 ; i += 10) {
-
-                    System.out.println(String.format("New Sort run with %d elements\n", i));
+                for (int i = 10000; i <= 40000 ; i += 2000) {
+                    consoleWriter.log(String.format("New Sort run with %d elements\n", i));
 
                     Object[] unsortedData = getRandomIntegerArray(i);
 
                     if (isStandardEnabled) {
-                        Object[] unsortedDataForStandard = new Object[i];
-                        System.arraycopy(unsortedData, 0, unsortedDataForStandard, 0, i);
-                        standardQuickSort(unsortedDataForStandard, comparator);
+                        standardQuickSort(unsortedData, comparator, consoleWriter);
                     }
 
                     if (isMultiThreadedEnabled) {
-                        Object[] unsortedDataForMultiThreaded = new Object[i];
-                        System.arraycopy(unsortedData, 0, unsortedDataForMultiThreaded, 0, i);
-                        multiThreadedQuickSort(unsortedDataForMultiThreaded, comparator);
+                        multiThreadedQuickSort(unsortedData, comparator, consoleWriter);
                     }
 
                     if (isInsertionSortAsBaseEnabled) {
-                        Object[] unsortedDataForInsertionSortAsBase = new Object[i];
-                        System.arraycopy(unsortedData, 0, unsortedDataForInsertionSortAsBase, 0, i);
-                        insertionSortAsBaseQuickSort(unsortedDataForInsertionSortAsBase, comparator);
+                        insertionSortAsBaseQuickSort(unsortedData, comparator, consoleWriter);
                     }
 
-                    System.out.println(String.format("\nSort run with %d elements finished!\n\n", i));
+                    consoleWriter.log(String.format("\nSort run with %d elements finished!\n\n", i));
                 }
 
                 return null;
@@ -134,67 +133,103 @@ public class ApplicationController {
         }).start();
 	}
 	
-    private void updateSeries(long n, ExecutionTimer timer, XYChart.Series<String, Long> series) {
+    private void updateSeries(long n, long time, XYChart.Series<String, Long> series) {
         Platform.runLater(() -> {
-            XYChart.Data<String, Long> newPoint = new XYChart.Data<>(Long.toString(n), timer.time);
+            XYChart.Data<String, Long> newPoint = new XYChart.Data<>(Long.toString(n), time);
             series.getData().add(newPoint);
         });
     }
 
-	private void standardQuickSort(Object[] data, Comparator sorter) {
-        System.out.println(" Unsorted data \n " + Arrays.toString(data));
+	private void standardQuickSort(Object[] data, Comparator sorter, ConsoleWriteWrapper consoleWriter) {
+        long[] times = new long[verificationCount];
 
-        QuickSortDnc sort = new QuickSortDnc(new SortWrapper(data, sorter));
-        ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
+        for (int i = 0; i < verificationCount; i++) {
 
-        SortWrapper result = timer.result;
-        System.out.println(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
+            Object[] unsortedData = new Object[data.length];
+            System.arraycopy(data, 0, unsortedData, 0, data.length);
+            consoleWriter.log(" Unsorted data \n " + Arrays.toString(unsortedData));
 
-        try {
-            verifyOrder(result.getData(), sorter);
-        } catch (Exception ex) {
-            System.err.println(String.format("Standard  Algorithm failed on sorting with %d elements!\n%s", data.length, ex.getMessage()));
+            QuickSortDnc sort = new QuickSortDnc(new SortWrapper(unsortedData, sorter));
+            ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
+
+            SortWrapper result = timer.result;
+            consoleWriter.log(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
+
+            try {
+                verifyOrder(result.getData(), sorter);
+            } catch (Exception ex) {
+                consoleWriter.error(String.format("Standard  Algorithm failed on sorting with %d elements!\n%s", unsortedData.length, ex.getMessage()));
+            }
+
+            times[i] = timer.time;
         }
 
-        updateSeries(data.length, timer, standardSeries);
+        long avgTime = (Arrays.stream(times).sum() / times.length);
+        updateSeries(data.length, avgTime, standardSeries);
+
+        consoleWriter.log(" QuickSort data sorting (took in average " + avgTime + "ns) ");
     }
 
-    private void multiThreadedQuickSort(Object[] data, Comparator sorter) {
-        System.out.println(" Unsorted data \n " + Arrays.toString(data));
+    private void multiThreadedQuickSort(Object[] data, Comparator sorter, ConsoleWriteWrapper consoleWriter) {
+	    long[] times = new long[verificationCount];
 
-        ParallelisedQuickSortDnc sort = new ParallelisedQuickSortDnc(new SortWrapper(data, sorter));
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
+	    for (int i = 0; i < verificationCount; i++) {
 
-        ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(() -> sort.divideAndConquer(threadPoolExecutor));
+            Object[] unsortedData = new Object[data.length];
+            System.arraycopy(data, 0, unsortedData, 0, data.length);
+            consoleWriter.log(" Unsorted data \n " + Arrays.toString(unsortedData));
 
-        SortWrapper result = timer.result;
-        System.out.println(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
+            ParallelisedQuickSortDnc sort = new ParallelisedQuickSortDnc(new SortWrapper(unsortedData, sorter));
+            ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 4, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
 
-        try {
-            verifyOrder(result.getData(), sorter);
-        } catch (Exception ex) {
-            System.err.println(String.format(" Multithreaded Algorithm failed on sorting with %d elements!\n%s", data.length, ex.getMessage()));
+            ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(() -> sort.divideAndConquer(threadPoolExecutor));
+
+            SortWrapper result = timer.result;
+            consoleWriter.log(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
+
+            try {
+                verifyOrder(result.getData(), sorter);
+            } catch (Exception ex) {
+                consoleWriter.error(String.format(" Multithreaded Algorithm failed on sorting with %d elements!\n%s", unsortedData.length, ex.getMessage()));
+            }
+
+            times[i] = timer.time;
         }
 
-        updateSeries(data.length, timer, threadedSeries);
+        long avgTime = (Arrays.stream(times).sum() / times.length);
+        updateSeries(data.length, avgTime, threadedSeries);
+
+        consoleWriter.log(" Multithreaded data sorting (took in average " + avgTime + "ns) ");
     }
 
-    private void insertionSortAsBaseQuickSort(Object[] data, Comparator sorter) {
-        System.out.println(" Unsorted data \n " + Arrays.toString(data));
+    private void insertionSortAsBaseQuickSort(Object[] data, Comparator sorter, ConsoleWriteWrapper consoleWriter) {
+        long[] times = new long[verificationCount];
 
-        QuickSortWithBaseInsertionSortDnc sort = new QuickSortWithBaseInsertionSortDnc(new SortWrapper(data, sorter));
-        ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
+        for (int i = 0; i < verificationCount; i++) {
 
-        SortWrapper result = timer.result;
-        System.out.println(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
+            Object[] unsortedData = new Object[data.length];
+            System.arraycopy(data, 0, unsortedData, 0, data.length);
+            consoleWriter.log(" Unsorted data \n " + Arrays.toString(unsortedData));
 
-        try {
-            verifyOrder(result.getData(), sorter);
-        } catch (Exception ex) {
-            System.err.println(String.format(" QuickSortWithBaseInsertionSortDnc Algorithm failed on sorting with %d elements!\n%s", data.length, ex.getMessage()));
+            QuickSortWithBaseInsertionSortDnc sort = new QuickSortWithBaseInsertionSortDnc(new SortWrapper(unsortedData, sorter));
+            ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
+
+            SortWrapper result = timer.result;
+            consoleWriter.log(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
+
+            try {
+                verifyOrder(result.getData(), sorter);
+            } catch (Exception ex) {
+                consoleWriter.error(String.format(" QuickSortWithBaseInsertionSortDnc Algorithm failed on sorting with %d elements!\n%s", unsortedData.length, ex.getMessage()));
+            }
+
+            times[i] = timer.time;
         }
 
-        updateSeries(data.length, timer, insertionSortAsBaseSeries);
+        long avgTime = (Arrays.stream(times).sum() / times.length);
+        updateSeries(data.length, avgTime, insertionSortAsBaseSeries);
+
+        consoleWriter.log(" BaseInsertionSort data sorting (took in average " + avgTime + "ns) ");
     }
 
     private Object[] getRandomIntegerArray(int arraySize) {

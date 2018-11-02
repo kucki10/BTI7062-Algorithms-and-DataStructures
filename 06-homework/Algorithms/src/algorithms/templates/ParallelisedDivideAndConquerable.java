@@ -12,6 +12,8 @@ public interface ParallelisedDivideAndConquerable<OutputType> extends DivideAndC
     @Override
     List<? extends ParallelisedDivideAndConquerable<OutputType>> decompose();
 
+    boolean isBigEnoughToMultiThread();
+
     default OutputType divideAndConquer(ThreadPoolExecutor executor) {
         if (this.isBasic()) {
             return this.baseFun();
@@ -23,11 +25,17 @@ public interface ParallelisedDivideAndConquerable<OutputType> extends DivideAndC
         List<Future<OutputType>> futureResults = new ArrayList<>(subComponents.size());
 
         subComponents.forEach(subComponent-> {
-            try {
-                futureResults.add(executor.submit(() -> subComponent.divideAndConquer(executor)));
-            } catch (RejectedExecutionException exception) {
+
+            if (isBigEnoughToMultiThread()) {
+                try {
+                    futureResults.add(executor.submit(() -> subComponent.divideAndConquer(executor)));
+                } catch (RejectedExecutionException exception) {
+                    intermediateResults.add(subComponent.divideAndConquer(executor));
+                }
+            } else {
                 intermediateResults.add(subComponent.divideAndConquer(executor));
             }
+
         });
 
         futureResults.forEach(x -> {
