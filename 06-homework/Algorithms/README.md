@@ -51,7 +51,6 @@ https://github.com/kucki10/BTI7062-Algorithms-and-DataStructures/tree/master/06-
    
 - **InsertionSort as base**
   - InsertionSort as base method is the fastest of these three algorithms.
-  - 
    
 - **First try of multithreaded QuickSort**
   - The multithreaded implementation was even slower than the singlethreaded version.
