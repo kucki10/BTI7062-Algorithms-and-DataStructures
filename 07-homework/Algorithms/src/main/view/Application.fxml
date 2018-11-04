@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
@@ -12,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ApplicationController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ApplicationController">
    <center>
       <LineChart fx:id="lineChart" legendSide="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
         <xAxis>
@@ -35,7 +41,7 @@
       </HBox>
    </bottom>
    <top>
-      <Label text="QuickSort performance tests" BorderPane.alignment="CENTER">
+      <Label text="Bisection Method - Iteration Count" BorderPane.alignment="CENTER">
          <font>
             <Font name="System Bold" size="25.0" />
          </font>
@@ -49,9 +55,10 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <CheckBox fx:id="cbStandard" mnemonicParsing="false" text="Normal" />
-            <CheckBox fx:id="cbMultiThreaded" mnemonicParsing="false" text="Multi-threaded" />
-            <CheckBox fx:id="cbInsertionSortAsBase" mnemonicParsing="false" text="InsertionSort as base" />
+            <CheckBox fx:id="cbSquareRoot" mnemonicParsing="false" text="Square Root" />
+            <CheckBox fx:id="cbCubicRoot" mnemonicParsing="false" text="Cubic Root" />
+            <CheckBox fx:id="cbLogarithm2" mnemonicParsing="false" text="Logarithm 2" />
+            <CheckBox fx:id="cbLogarithm10" mnemonicParsing="false" text="Logarithm 10" />
          </children>
          <padding>
             <Insets left="10.0" />

@@ -1,50 +1,43 @@
 package algorithms.examples;
 
+import algorithms.algorithms.helper.Counter;
+
 public class SquareRootByIterationCount {
 
+    private Counter counter;
     private int iterationCount;
 
     public SquareRootByIterationCount(int iterationCount) {
+        this.counter = new Counter();
         this.iterationCount = iterationCount;
     }
 
-    public double calculate(double x) {
-        return calculate(x, x);
+    public double calculate(double n) {
+        // 0 is the left bound and x is the right bound
+        return calculate(n, 0, n);
     }
 
-    private double calculate(final double originalValue, double currentVal) {
+    private double calculate(final double n, double left, double right) {
+        // Calculate the mid of left and right
+        double mid = (left + right) / 2;
+        // Square the mid
+        double squaredMid = mid * mid;
 
-        System.out.println("\n  [" + iterationCount + "] (" + originalValue + ", " + currentVal + ")");
-
-        double half = currentVal / 2;
-        double squaredHalfs = half * half;
-
-        System.out.println("     -> half         = " + half);
-        System.out.println("     -> squared Half = " + squaredHalfs);
-
-        if (iterationCount <= 0) {
-            return currentVal;
+        if (this.counter.value() == this.iterationCount) {
+            return mid;
         }
-        iterationCount--;
+        this.counter.increment();
 
-        if (squaredHalfs < originalValue) {
-            //Half is still too large (half again)
-            //
-            // TODO: FAIL Two steps at the time
-            System.out.println("     == squaredHalfs < originalValue (" + squaredHalfs + " < " + originalValue + ")");
+        if (squaredMid < n) {
+            //Mid is too small (search further in the mid of mid and right)
+            return this.calculate(n, mid, right);
 
-            double diff = (currentVal + half) / 2;
-            return calculate(originalValue, diff);
-
-        } else if (squaredHalfs > originalValue) {
-            //Half is still too large (half again)
-            System.out.println("     == squaredHalfs > originalValue (" + squaredHalfs + " > " + originalValue + ")");
-
-            return calculate(originalValue, half);
+        } else if (squaredMid > n) {
+            //Mid is too small (search further in the mid of left and mid)
+            return this.calculate(n, left, mid);
         }
 
-        //Half is exactly the square root of originalValue
-        return half;
+        //Mid is exactly the square root of originalValue
+        return mid;
     }
-
 }

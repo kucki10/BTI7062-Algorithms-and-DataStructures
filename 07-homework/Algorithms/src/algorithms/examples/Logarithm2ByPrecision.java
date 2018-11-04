@@ -2,12 +2,12 @@ package algorithms.examples;
 
 import algorithms.algorithms.helper.Counter;
 
-public class SquareRootByPrecision {
+public class Logarithm2ByPrecision {
 
     private Counter counter;
     private double delta;
 
-    public SquareRootByPrecision(double delta) {
+    public Logarithm2ByPrecision(double delta) {
         this.counter = new Counter();
         this.delta = delta;
     }
@@ -23,11 +23,11 @@ public class SquareRootByPrecision {
         // Calculate the mid of left and right
         double mid = (left + right) / 2;
         // Square the mid
-        double squaredMid = mid * mid;
+        double logarithmMid = Math.pow(2, mid);
 
-        if (Math.abs(n - squaredMid) <= this.delta) {
+        if (Math.abs(n - logarithmMid) <= this.delta) {
             return mid;
-        } else if (squaredMid < n) {
+        } else if (logarithmMid < n) {
             //Mid is too small (search further in the mid of mid and right)
             return this.calculate(n, mid, right);
         } else {

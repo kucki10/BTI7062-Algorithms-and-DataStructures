@@ -2,7 +2,7 @@ package main;
 
 import algorithms.algorithms.helper.ConsoleWriteWrapper;
 import algorithms.algorithms.helper.ExecutionTimer;
-import algorithms.examples.SquareRootByIterationCount;
+import algorithms.examples.*;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -19,68 +19,73 @@ import java.util.concurrent.TimeUnit;
 public class ApplicationController {
 
 	@FXML
-	private LineChart<String, Long> lineChart;
+	private LineChart<String, Integer> lineChart;
 
 	@FXML
 	private Button btnCalculate;
 
 	@FXML
-    private CheckBox cbStandard;
+    private CheckBox cbSquareRoot;
 
-	@FXML
-    private CheckBox cbMultiThreaded;
+    @FXML
+    private CheckBox cbCubicRoot;
 
-	@FXML
-    private CheckBox cbInsertionSortAsBase;
+    @FXML
+    private CheckBox cbLogarithm2;
+
+    @FXML
+    private CheckBox cbLogarithm10;
 
 	@FXML
     private CheckBox cbEnableLogs;
 
-	private int verificationCount = 20;
-
-	private final XYChart.Series<String, Long> standardSeries;
-	private final XYChart.Series<String, Long> threadedSeries;
-    private final XYChart.Series<String, Long> insertionSortAsBaseSeries;
+	private final XYChart.Series<String, Integer> squareRoot;
+    private final XYChart.Series<String, Integer> cubicRoot;
+    private final XYChart.Series<String, Integer> logarithm2;
+    private final XYChart.Series<String, Integer> logarithm10;
 
 	public ApplicationController() {
-        standardSeries = new XYChart.Series<>();
-        threadedSeries = new XYChart.Series<>();
-        insertionSortAsBaseSeries = new XYChart.Series<>();
+        squareRoot = new XYChart.Series<>();
+        cubicRoot = new XYChart.Series<>();
+        logarithm2 = new XYChart.Series<>();
+        logarithm10 = new XYChart.Series<>();
     }
 	
 	@FXML
 	private void initialize() {
-        lineChart.getXAxis().setLabel("Array size of unsorted array - Result is logged in console");
-        lineChart.getYAxis().setLabel("time used to sort in [ns]");
+        lineChart.getXAxis().setLabel("Number to be calculated - Result is logged in console");
+        lineChart.getYAxis().setLabel("Iteration count");
 
-		lineChart.getData().add(standardSeries);
-		lineChart.getData().add(threadedSeries);
-        lineChart.getData().add(insertionSortAsBaseSeries);
+		lineChart.getData().add(squareRoot);
+		lineChart.getData().add(cubicRoot);
+		lineChart.getData().add(logarithm2);
+        lineChart.getData().add(logarithm10);
 
-		standardSeries.setName("Standard");
-        threadedSeries.setName("Multi-threaded");
-        insertionSortAsBaseSeries.setName("InsertionSort as Base function");
+        squareRoot.setName("Square Root");
+        cubicRoot.setName("Cubic Root");
+        logarithm2.setName("Logarithm 2");
+        logarithm10.setName("Logarithm 10");
 
-		cbStandard.setSelected(true);
-		cbMultiThreaded.setSelected(true);
-		cbInsertionSortAsBase.setSelected(true);
+        cbSquareRoot.setSelected(true);
+        cbCubicRoot.setSelected(true);
+        cbLogarithm2.setSelected(true);
+        cbLogarithm10.setSelected(true);
 	}
 	
 	@FXML
 	private void onCalculate() {
 	    //Clear the plot
-        standardSeries.getData().clear();
-        threadedSeries.getData().clear();
-        insertionSortAsBaseSeries.getData().clear();
+        squareRoot.getData().clear();
 
 		//Save the options, which calculation method should run
         //We need to save them, because they could change while calculating inside thread
-        boolean isStandardEnabled = cbStandard.isSelected();
-        boolean isMultiThreadedEnabled = cbMultiThreaded.isSelected();
-        boolean isInsertionSortAsBaseEnabled = cbInsertionSortAsBase.isSelected();
+        boolean isSquareRootEnabled = cbSquareRoot.isSelected();
+        boolean isCubicRootEnabled = cbCubicRoot.isSelected();
+        boolean isLogarithm2Enabled = cbLogarithm2.isSelected();
+        boolean isLogarithm10Enabled = cbLogarithm10.isSelected();
 
         //Check that at least one technique is enabled
-        if (!isStandardEnabled && !isMultiThreadedEnabled && !isInsertionSortAsBaseEnabled) {
+        if (!isSquareRootEnabled && !isCubicRootEnabled && !isLogarithm2Enabled && !isLogarithm10Enabled) {
             System.err.println("Either one checkbox for techniques must be enabled");
             return;
         }
@@ -92,27 +97,24 @@ public class ApplicationController {
             protected Void call() {
                 //Threaded stuff
 
-                for (int i = 2; i <= 100 ; i += 1) {
-                    consoleWriter.log(String.format("New Sort run with %d elements\n", i));
+                double delta = 0.000000001;
 
-
-                    calculateSquareRootByIterationCount(i, consoleWriter);
-
-                    /*
-                    if (isStandardEnabled) {
-                        standardQuickSort(unsortedData, comparator, consoleWriter);
+                for (int i = 10000; i <= 1000000 ; i += 10000) {
+                    if (isSquareRootEnabled) {
+                        calculateSquareRootByPrecision(i, delta, consoleWriter);
                     }
 
-                    if (isMultiThreadedEnabled) {
-                        multiThreadedQuickSort(unsortedData, comparator, consoleWriter);
+                    if (isCubicRootEnabled) {
+                        calculateCubicRootByPrecision(i, delta, consoleWriter);
                     }
 
-                    if (isInsertionSortAsBaseEnabled) {
-                        insertionSortAsBaseQuickSort(unsortedData, comparator, consoleWriter);
+                    if (isLogarithm2Enabled) {
+                        calculateLogarithm2ByPrecision(i, delta, consoleWriter);
                     }
-                    */
 
-                    consoleWriter.log(String.format("\nSort run with %d elements finished!\n\n", i));
+                    if (isLogarithm10Enabled) {
+                        calculateLogarithm10ByPrecision(i, delta, consoleWriter);
+                    }
                 }
 
                 return null;
@@ -132,57 +134,70 @@ public class ApplicationController {
         }).start();
 	}
 	
-    private void updateSeries(long n, long time, XYChart.Series<String, Long> series) {
+    private void updateSeries(int n, int iterations, XYChart.Series<String, Integer> series) {
         Platform.runLater(() -> {
-            XYChart.Data<String, Long> newPoint = new XYChart.Data<>(Long.toString(n), time);
+            XYChart.Data<String, Integer> newPoint = new XYChart.Data<>(Integer.toString(n), iterations);
             series.getData().add(newPoint);
         });
     }
 
-
-    private void calculateSquareRootByIterationCount(int n, ConsoleWriteWrapper consoleWrapper) {
-        SquareRootByIterationCount sgrt = new SquareRootByIterationCount(50);
-        double calcRes = sgrt.calculate(n);
-
+    private void calculateSquareRootByPrecision(int n, double delta, ConsoleWriteWrapper consoleWrapper) {
+        SquareRootByPrecision sqrt = new SquareRootByPrecision(delta);
+        double calcRes = sqrt.calculate(n);
+        consoleWrapper.log(" Square to be calculated : " + n);
+        consoleWrapper.log(" Iteration count : " + sqrt.getIterationCount());
         consoleWrapper.log(" Calculated value is : " + calcRes);
 
         double realRes = Math.sqrt(n);
         consoleWrapper.log(" Real value is : " +  realRes);
 
-        double diff = (calcRes + realRes) / 2;
+        double diff = Math.abs(realRes - calcRes);
         consoleWrapper.log(" Diff is : " + diff + "\n");
+        updateSeries(n, sqrt.getIterationCount(), squareRoot);
     }
 
-    /*
-	private void standardQuickSort(Object[] data, Comparator sorter, ConsoleWriteWrapper consoleWriter) {
-        long[] times = new long[verificationCount];
+    private void calculateCubicRootByPrecision(int n, double delta, ConsoleWriteWrapper consoleWrapper) {
+        CubicRootByPrecision cbrt = new CubicRootByPrecision(delta);
+        double calcRes = cbrt.calculate(n);
+        consoleWrapper.log(" Cubic to be calculated : " + n);
+        consoleWrapper.log(" Iteration count : " + cbrt.getIterationCount());
+        consoleWrapper.log(" Calculated value is : " + calcRes);
 
-        for (int i = 0; i < verificationCount; i++) {
+        double realRes = Math.cbrt(n);
+        consoleWrapper.log(" Real value is : " +  realRes);
 
-            Object[] unsortedData = new Object[data.length];
-            System.arraycopy(data, 0, unsortedData, 0, data.length);
-            consoleWriter.log(" Unsorted data \n " + Arrays.toString(unsortedData));
-
-            QuickSortDnc sort = new QuickSortDnc(new SortWrapper(unsortedData, sorter));
-            ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
-
-            SortWrapper result = timer.result;
-            consoleWriter.log(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
-
-            try {
-                verifyOrder(result.getData(), sorter);
-            } catch (Exception ex) {
-                consoleWriter.error(String.format("Standard  Algorithm failed on sorting with %d elements!\n%s", unsortedData.length, ex.getMessage()));
-            }
-
-            times[i] = timer.time;
-        }
-
-        long avgTime = (Arrays.stream(times).sum() / times.length);
-        updateSeries(data.length, avgTime, standardSeries);
-
-        consoleWriter.log(" QuickSort data sorting (took in average " + avgTime + "ns) ");
+        double diff = Math.abs(realRes - calcRes);
+        consoleWrapper.log(" Diff is : " + diff + "\n");
+        updateSeries(n, cbrt.getIterationCount(), cubicRoot);
     }
-    */
 
+    private void calculateLogarithm2ByPrecision(int n, double delta, ConsoleWriteWrapper consoleWrapper) {
+        Logarithm2ByPrecision log2 = new Logarithm2ByPrecision(delta);
+        double calcRes = log2.calculate(n);
+        consoleWrapper.log(" Logarithm 2 to be calculated : " + n);
+        consoleWrapper.log(" Iteration count : " + log2.getIterationCount());
+        consoleWrapper.log(" Calculated value is : " + calcRes);
+
+        double realRes = Math.log(n)/Math.log(2);
+        consoleWrapper.log(" Real value is : " +  realRes);
+
+        double diff = Math.abs(realRes - calcRes);
+        consoleWrapper.log(" Diff is : " + diff + "\n");
+        updateSeries(n, log2.getIterationCount(), logarithm2);
+    }
+
+    private void calculateLogarithm10ByPrecision(int n, double delta, ConsoleWriteWrapper consoleWrapper) {
+        Logarithm10ByPrecision log10 = new Logarithm10ByPrecision(delta);
+        double calcRes = log10.calculate(n);
+        consoleWrapper.log(" Logarithm 10 to be calculated : " + n);
+        consoleWrapper.log(" Iteration count : " + log10.getIterationCount());
+        consoleWrapper.log(" Calculated value is : " + calcRes);
+
+        double realRes = Math.log(n)/Math.log(10);
+        consoleWrapper.log(" Real value is : " +  realRes);
+
+        double diff = Math.abs(realRes - calcRes);
+        consoleWrapper.log(" Diff is : " + diff + "\n");
+        updateSeries(n, log10.getIterationCount(), logarithm10);
+    }
 }
