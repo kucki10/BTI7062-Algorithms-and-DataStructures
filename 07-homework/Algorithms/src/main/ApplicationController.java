@@ -2,6 +2,7 @@ package main;
 
 import algorithms.algorithms.helper.ConsoleWriteWrapper;
 import algorithms.algorithms.helper.ExecutionTimer;
+import algorithms.examples.SquareRootByIterationCount;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -91,9 +92,11 @@ public class ApplicationController {
             protected Void call() {
                 //Threaded stuff
 
-                for (int i = 10000; i <= 40000 ; i += 2000) {
+                for (int i = 2; i <= 100 ; i += 1) {
                     consoleWriter.log(String.format("New Sort run with %d elements\n", i));
 
+
+                    calculateSquareRootByIterationCount(i, consoleWriter);
 
                     /*
                     if (isStandardEnabled) {
@@ -134,6 +137,20 @@ public class ApplicationController {
             XYChart.Data<String, Long> newPoint = new XYChart.Data<>(Long.toString(n), time);
             series.getData().add(newPoint);
         });
+    }
+
+
+    private void calculateSquareRootByIterationCount(int n, ConsoleWriteWrapper consoleWrapper) {
+        SquareRootByIterationCount sgrt = new SquareRootByIterationCount(50);
+        double calcRes = sgrt.calculate(n);
+
+        consoleWrapper.log(" Calculated value is : " + calcRes);
+
+        double realRes = Math.sqrt(n);
+        consoleWrapper.log(" Real value is : " +  realRes);
+
+        double diff = (calcRes + realRes) / 2;
+        consoleWrapper.log(" Diff is : " + diff + "\n");
     }
 
     /*

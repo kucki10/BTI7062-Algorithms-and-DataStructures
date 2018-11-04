@@ -5,7 +5,7 @@ public class SquareRootByIterationCount {
     private int iterationCount;
 
     public SquareRootByIterationCount(int iterationCount) {
-        iterationCount = iterationCount;
+        this.iterationCount = iterationCount;
     }
 
     public double calculate(double x) {
@@ -13,22 +13,34 @@ public class SquareRootByIterationCount {
     }
 
     private double calculate(final double originalValue, double currentVal) {
+
+        System.out.println("\n  [" + iterationCount + "] (" + originalValue + ", " + currentVal + ")");
+
+        double half = currentVal / 2;
+        double squaredHalfs = half * half;
+
+        System.out.println("     -> half         = " + half);
+        System.out.println("     -> squared Half = " + squaredHalfs);
+
         if (iterationCount <= 0) {
             return currentVal;
         }
         iterationCount--;
 
-        double half = currentVal / 2;
-        double squaredHalfs = half * half;
-
         if (squaredHalfs < originalValue) {
             //Half is still too large (half again)
+            //
+            // TODO: FAIL Two steps at the time
+            System.out.println("     == squaredHalfs < originalValue (" + squaredHalfs + " < " + originalValue + ")");
+
             double diff = (currentVal + half) / 2;
-            return calculate(diff);
+            return calculate(originalValue, diff);
 
         } else if (squaredHalfs > originalValue) {
             //Half is still too large (half again)
-            return calculate(half);
+            System.out.println("     == squaredHalfs > originalValue (" + squaredHalfs + " > " + originalValue + ")");
+
+            return calculate(originalValue, half);
         }
 
         //Half is exactly the square root of originalValue
