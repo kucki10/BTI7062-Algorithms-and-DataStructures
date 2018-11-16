@@ -37,3 +37,11 @@ You just need to rename the extension to "jar". <br />
 If the bin folder is empty, the Mail Server removed the built.
 You can also download the builded version under:
 https://github.com/kucki10/BTI7062-Algorithms-and-DataStructures/tree/master/07-homework/Algorithms/bin <br />
+
+
+### Lessons learned
+- We have the problem, that the calculation for 0 & n (bounds) took unnecessarily long. <br />
+  - In order to solve this problem, we could simply execute the calculation in first iteration also for the boundaries (left & right)
+  - E.g. log2(1) = 0, took very long, because the method we use is an approximation to 0. (Where left bound is always zero)
+  - Therefore 0 should be checked in first iteration, to avoid this unnecessary computations.
+- The algorithm is very performant (E.g. 60 iterations for log2(100000))
