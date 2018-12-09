@@ -31,7 +31,7 @@ public class ApplicationController {
 	@FXML
     private CheckBox cbEnableLogs;
 
-	private int verificationCount = 20;
+	private int verificationCount = 1;
 
 	private final XYChart.Series<String, Long> columnBasedSeries;
 	private final XYChart.Series<String, Long> rowBasedSeries;
@@ -101,7 +101,7 @@ public class ApplicationController {
             @Override
             protected Void call() {
                 //Threaded stuff
-                for (int i = 1; i <= 10000 ; i += 1) {
+                for (int i = 2; i <= 10 ; i += 1) {
                     consoleWriter.log(String.format("New Calculation run with Fibonacci(%d)\n", i));
 
                     if (isColumnBasedEnabled) {
@@ -150,19 +150,20 @@ public class ApplicationController {
         for (int i = 0; i < verificationCount; i++) {
 
             Matrix columnBasedMatrix = new ColumnBasedDoubleMatrix(2, 2);
-            consoleWriter.log(" Fibonacci before calculation \n " + columnBasedMatrix.toString());
+            setupInitialFibonacciMatrix(columnBasedMatrix);
+            consoleWriter.log(" Fibonacci(" + j + ") [column] \n " + columnBasedMatrix.toString());
 
             ExecutionTimer<Matrix> timer = new ExecutionTimer<>(() -> columnBasedMatrix.potentiate(j));
 
             Matrix result = timer.result;
-            consoleWriter.log(" Calcualting Fibonnaci [column] (took " + timer.time + "ns) \n " + result.toString());
+            consoleWriter.log(" Fibonacci(" + j + ") [column] (took " + timer.time + "ns) \n " + result.toString());
             times[i] = timer.time;
         }
 
         long avgTime = (Arrays.stream(times).sum() / times.length);
         updateSeries(j, avgTime, columnBasedSeries);
 
-        consoleWriter.log(" Fibonacci calculation [column] Fib(" + j + ") (took in average " + avgTime + "ns) ");
+        consoleWriter.log(" Fibonacci(" + j + ") [column] (took in average " + avgTime + "ns) ");
     }
 
     private void rowBasedFibonacciMatrix(int j, ConsoleWriteWrapper consoleWriter) {
@@ -172,20 +173,28 @@ public class ApplicationController {
         for (int i = 0; i < verificationCount; i++) {
 
             Matrix rowBasedMatrix = new RowBasedDoubleMatrix(2, 2);
-            consoleWriter.log(" Fibonacci before calculation \n " + rowBasedMatrix.toString());
+            setupInitialFibonacciMatrix(rowBasedMatrix);
+            consoleWriter.log(" Fibonacci(" + j + ") [column] \n " + rowBasedMatrix.toString());
 
             ExecutionTimer<Matrix> timer = new ExecutionTimer<>(() -> rowBasedMatrix.potentiate(j));
 
             Matrix result = timer.result;
-            consoleWriter.log(" Calcualting Fibonnaci [row] (took " + timer.time + "ns) \n " + result.toString());
+            consoleWriter.log(" Fibonacci(" + j + ") [column] (took " + timer.time + "ns) \n " + result.toString());
             times[i] = timer.time;
         }
 
         long avgTime = (Arrays.stream(times).sum() / times.length);
         updateSeries(j, avgTime, columnBasedSeries);
 
-        consoleWriter.log(" Fibonacci calculation [row] Fib(" + j + ") (took in average " + avgTime + "ns) ");
+        consoleWriter.log(" Fibonacci(" + j + ") [column] (took in average " + avgTime + "ns) ");
         */
+    }
+
+    private void setupInitialFibonacciMatrix(Matrix<Double> matrix) {
+	    matrix.setValue(0, 0, (double) 0);
+	    matrix.setValue(1, 0, (double) 1);
+	    matrix.setValue(0, 1, (double) 1);
+	    matrix.setValue(1, 1, (double) 2);
     }
 
     private void drawLogarithmicLine(int i) {
