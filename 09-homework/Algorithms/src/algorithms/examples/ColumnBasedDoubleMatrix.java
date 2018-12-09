@@ -39,15 +39,36 @@ public class ColumnBasedDoubleMatrix implements Matrix<Double> {
         if (this.getWidth() == matrix.getHeight()) {
             Double[][] result = new Double[this.getHeight()][matrix.getWidth()];
             for (int i = 0; i < this.getHeight(); i++) {
-                for (int j = 0; j < this.getWidth()) {
-                    for
+                for (int j = 0; j < this.getWidth(); j++) {
+
+
+
                 }
             }
         }
+
+        return null;
     }
 
     @Override
     public Matrix<Double> potentiate(int n) {
+
         return null;
+    }
+
+
+    @Override
+    public String toString() {
+
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < this.getHeight(); i++) {
+            for (int j = 0; j < this.getWidth(); j++) {
+                builder.append(getValue(j, i)).append("\t");
+            }
+            builder.append("\n");
+        }
+
+        return builder.toString();
     }
 }

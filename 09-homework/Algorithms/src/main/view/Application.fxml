@@ -35,7 +35,7 @@
       </HBox>
    </bottom>
    <top>
-      <Label text="QuickSort performance tests" BorderPane.alignment="CENTER">
+      <Label text="Fibonnaci Matrix calculation performance tests" BorderPane.alignment="CENTER">
          <font>
             <Font name="System Bold" size="25.0" />
          </font>
@@ -49,9 +49,8 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <CheckBox fx:id="cbStandard" mnemonicParsing="false" text="Normal" />
-            <CheckBox fx:id="cbMultiThreaded" mnemonicParsing="false" text="Multi-threaded" />
-            <CheckBox fx:id="cbInsertionSortAsBase" mnemonicParsing="false" text="InsertionSort as base" />
+            <CheckBox fx:id="cbColumnBased" mnemonicParsing="false" text="Column based" />
+            <CheckBox fx:id="cbRowBased" mnemonicParsing="false" text="Row based" />
          </children>
          <padding>
             <Insets left="10.0" />

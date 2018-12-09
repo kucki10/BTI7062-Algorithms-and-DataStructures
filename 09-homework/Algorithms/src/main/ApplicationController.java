@@ -2,9 +2,8 @@ package main;
 
 import algorithms.algorithms.helper.ConsoleWriteWrapper;
 import algorithms.algorithms.helper.ExecutionTimer;
-import algorithms.algorithms.helper.IntComparator;
-import algorithms.algorithms.helper.SortWrapper;
 import algorithms.examples.*;
+import algorithms.templates.Matrix;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -14,10 +13,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 
 import java.util.*;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 public class ApplicationController {
 
@@ -28,62 +23,74 @@ public class ApplicationController {
 	private Button btnCalculate;
 
 	@FXML
-    private CheckBox cbStandard;
+    private CheckBox cbColumnBased;
 
 	@FXML
-    private CheckBox cbMultiThreaded;
-
-	@FXML
-    private CheckBox cbInsertionSortAsBase;
+    private CheckBox cbRowBased;
 
 	@FXML
     private CheckBox cbEnableLogs;
 
 	private int verificationCount = 20;
 
-	private final XYChart.Series<String, Long> standardSeries;
-	private final XYChart.Series<String, Long> threadedSeries;
-    private final XYChart.Series<String, Long> insertionSortAsBaseSeries;
+	private final XYChart.Series<String, Long> columnBasedSeries;
+	private final XYChart.Series<String, Long> rowBasedSeries;
+
+    private final XYChart.Series<String, Long> logarithmicSeries;
+    private final XYChart.Series<String, Long> linearSeries;
+	private final XYChart.Series<String, Long> quadraticSeries;
+	private final XYChart.Series<String, Long> qubicSeries;
 
 	public ApplicationController() {
-        standardSeries = new XYChart.Series<>();
-        threadedSeries = new XYChart.Series<>();
-        insertionSortAsBaseSeries = new XYChart.Series<>();
+        columnBasedSeries = new XYChart.Series<>();
+        rowBasedSeries = new XYChart.Series<>();
+
+        logarithmicSeries  = new XYChart.Series<>();
+        linearSeries= new XYChart.Series<>();
+        quadraticSeries = new XYChart.Series<>();
+        qubicSeries = new XYChart.Series<>();
     }
 	
 	@FXML
 	private void initialize() {
-        lineChart.getXAxis().setLabel("Array size of unsorted array - Result is logged in console");
-        lineChart.getYAxis().setLabel("time used to sort in [ns]");
+        lineChart.getXAxis().setLabel("Fibonacci (x) -> x -> Result is logged in console");
+        lineChart.getYAxis().setLabel("time used to calculate in [ns]");
 
-		lineChart.getData().add(standardSeries);
-		lineChart.getData().add(threadedSeries);
-        lineChart.getData().add(insertionSortAsBaseSeries);
+		lineChart.getData().add(columnBasedSeries);
+		lineChart.getData().add(rowBasedSeries);
 
-		standardSeries.setName("Standard");
-        threadedSeries.setName("Multi-threaded");
-        insertionSortAsBaseSeries.setName("InsertionSort as Base function");
+		lineChart.getData().add(logarithmicSeries);
+		lineChart.getData().add(linearSeries);
+		lineChart.getData().add(quadraticSeries);
+		lineChart.getData().add(qubicSeries);
 
-		cbStandard.setSelected(true);
-		cbMultiThreaded.setSelected(true);
-		cbInsertionSortAsBase.setSelected(true);
+
+		columnBasedSeries.setName("Fibonacci Matrix (column based)");
+        rowBasedSeries.setName("Fibonacci Matrix (row based)");
+
+        logarithmicSeries.setName("Reference Logarithmic");
+        linearSeries.setName("Reference Linear");
+        quadraticSeries.setName("Reference Quadratic");
+        qubicSeries.setName("Reference Qubic");
+
+
+		cbColumnBased.setSelected(true);
+		cbRowBased.setSelected(true);
 	}
 	
 	@FXML
 	private void onCalculate() {
 	    //Clear the plot
-        standardSeries.getData().clear();
-        threadedSeries.getData().clear();
-        insertionSortAsBaseSeries.getData().clear();
+        columnBasedSeries.getData().clear();
+        rowBasedSeries.getData().clear();
 
 		//Save the options, which calculation method should run
         //We need to save them, because they could change while calculating inside thread
-        boolean isStandardEnabled = cbStandard.isSelected();
-        boolean isMultiThreadedEnabled = cbMultiThreaded.isSelected();
-        boolean isInsertionSortAsBaseEnabled = cbInsertionSortAsBase.isSelected();
+        boolean isColumnBasedEnabled = cbColumnBased.isSelected();
+        boolean isRowBasedEnabled = cbRowBased.isSelected();
 
         //Check that at least one technique is enabled
-        if (!isStandardEnabled && !isMultiThreadedEnabled && !isInsertionSortAsBaseEnabled) {
+        if (!isColumnBasedEnabled && !isRowBasedEnabled) {
             System.err.println("Either one checkbox for techniques must be enabled");
             return;
         }
@@ -94,26 +101,23 @@ public class ApplicationController {
             @Override
             protected Void call() {
                 //Threaded stuff
-                Comparator comparator = new IntComparator();
+                for (int i = 1; i <= 10000 ; i += 1) {
+                    consoleWriter.log(String.format("New Calculation run with Fibonacci(%d)\n", i));
 
-                for (int i = 10000; i <= 40000 ; i += 2000) {
-                    consoleWriter.log(String.format("New Sort run with %d elements\n", i));
-
-                    Object[] unsortedData = getRandomIntegerArray(i);
-
-                    if (isStandardEnabled) {
-                        standardQuickSort(unsortedData, comparator, consoleWriter);
+                    if (isColumnBasedEnabled) {
+                        columnBasedFibonacciMatrix(i, consoleWriter);
                     }
 
-                    if (isMultiThreadedEnabled) {
-                        multiThreadedQuickSort(unsortedData, comparator, consoleWriter);
+                    if (isColumnBasedEnabled) {
+                        rowBasedFibonacciMatrix(i, consoleWriter);
                     }
 
-                    if (isInsertionSortAsBaseEnabled) {
-                        insertionSortAsBaseQuickSort(unsortedData, comparator, consoleWriter);
-                    }
+                    drawLogarithmicLine(i);
+                    drawLinearLine(i);
+                    drawQuadraticLine(i);
+                    drawQubicLine(i);
 
-                    consoleWriter.log(String.format("\nSort run with %d elements finished!\n\n", i));
+                    consoleWriter.log(String.format("\nCalculation run with Fibonacci(%d) finished!\n\n", i));
                 }
 
                 return null;
@@ -140,115 +144,64 @@ public class ApplicationController {
         });
     }
 
-	private void standardQuickSort(Object[] data, Comparator sorter, ConsoleWriteWrapper consoleWriter) {
+	private void columnBasedFibonacciMatrix(int j, ConsoleWriteWrapper consoleWriter) {
         long[] times = new long[verificationCount];
 
         for (int i = 0; i < verificationCount; i++) {
 
-            Object[] unsortedData = new Object[data.length];
-            System.arraycopy(data, 0, unsortedData, 0, data.length);
-            consoleWriter.log(" Unsorted data \n " + Arrays.toString(unsortedData));
+            Matrix columnBasedMatrix = new ColumnBasedDoubleMatrix(2, 2);
+            consoleWriter.log(" Fibonacci before calculation \n " + columnBasedMatrix.toString());
 
-            QuickSortDnc sort = new QuickSortDnc(new SortWrapper(unsortedData, sorter));
-            ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
+            ExecutionTimer<Matrix> timer = new ExecutionTimer<>(() -> columnBasedMatrix.potentiate(j));
 
-            SortWrapper result = timer.result;
-            consoleWriter.log(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
-
-            try {
-                verifyOrder(result.getData(), sorter);
-            } catch (Exception ex) {
-                consoleWriter.error(String.format("Standard  Algorithm failed on sorting with %d elements!\n%s", unsortedData.length, ex.getMessage()));
-            }
-
+            Matrix result = timer.result;
+            consoleWriter.log(" Calcualting Fibonnaci [column] (took " + timer.time + "ns) \n " + result.toString());
             times[i] = timer.time;
         }
 
         long avgTime = (Arrays.stream(times).sum() / times.length);
-        updateSeries(data.length, avgTime, standardSeries);
+        updateSeries(j, avgTime, columnBasedSeries);
 
-        consoleWriter.log(" QuickSort data sorting (took in average " + avgTime + "ns) ");
+        consoleWriter.log(" Fibonacci calculation [column] Fib(" + j + ") (took in average " + avgTime + "ns) ");
     }
 
-    private void multiThreadedQuickSort(Object[] data, Comparator sorter, ConsoleWriteWrapper consoleWriter) {
-	    long[] times = new long[verificationCount];
-
-	    for (int i = 0; i < verificationCount; i++) {
-
-            Object[] unsortedData = new Object[data.length];
-            System.arraycopy(data, 0, unsortedData, 0, data.length);
-            consoleWriter.log(" Unsorted data \n " + Arrays.toString(unsortedData));
-
-            ParallelisedQuickSortDnc sort = new ParallelisedQuickSortDnc(new SortWrapper(unsortedData, sorter));
-            ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 4, 30, TimeUnit.SECONDS, new SynchronousQueue<>());
-
-            ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(() -> sort.divideAndConquer(threadPoolExecutor));
-
-            SortWrapper result = timer.result;
-            consoleWriter.log(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
-
-            try {
-                verifyOrder(result.getData(), sorter);
-            } catch (Exception ex) {
-                consoleWriter.error(String.format(" Multithreaded Algorithm failed on sorting with %d elements!\n%s", unsortedData.length, ex.getMessage()));
-            }
-
-            times[i] = timer.time;
-        }
-
-        long avgTime = (Arrays.stream(times).sum() / times.length);
-        updateSeries(data.length, avgTime, threadedSeries);
-
-        consoleWriter.log(" Multithreaded data sorting (took in average " + avgTime + "ns) ");
-    }
-
-    private void insertionSortAsBaseQuickSort(Object[] data, Comparator sorter, ConsoleWriteWrapper consoleWriter) {
+    private void rowBasedFibonacciMatrix(int j, ConsoleWriteWrapper consoleWriter) {
+        /*
         long[] times = new long[verificationCount];
 
         for (int i = 0; i < verificationCount; i++) {
 
-            Object[] unsortedData = new Object[data.length];
-            System.arraycopy(data, 0, unsortedData, 0, data.length);
-            consoleWriter.log(" Unsorted data \n " + Arrays.toString(unsortedData));
+            Matrix rowBasedMatrix = new RowBasedDoubleMatrix(2, 2);
+            consoleWriter.log(" Fibonacci before calculation \n " + rowBasedMatrix.toString());
 
-            QuickSortWithBaseInsertionSortDnc sort = new QuickSortWithBaseInsertionSortDnc(new SortWrapper(unsortedData, sorter));
-            ExecutionTimer<SortWrapper> timer = new ExecutionTimer<>(sort::divideAndConquer);
+            ExecutionTimer<Matrix> timer = new ExecutionTimer<>(() -> rowBasedMatrix.potentiate(j));
 
-            SortWrapper result = timer.result;
-            consoleWriter.log(" Sorted data (took " + timer.time + "ns) \n " + Arrays.toString(result.getData()));
-
-            try {
-                verifyOrder(result.getData(), sorter);
-            } catch (Exception ex) {
-                consoleWriter.error(String.format(" QuickSortWithBaseInsertionSortDnc Algorithm failed on sorting with %d elements!\n%s", unsortedData.length, ex.getMessage()));
-            }
-
+            Matrix result = timer.result;
+            consoleWriter.log(" Calcualting Fibonnaci [row] (took " + timer.time + "ns) \n " + result.toString());
             times[i] = timer.time;
         }
 
         long avgTime = (Arrays.stream(times).sum() / times.length);
-        updateSeries(data.length, avgTime, insertionSortAsBaseSeries);
+        updateSeries(j, avgTime, columnBasedSeries);
 
-        consoleWriter.log(" BaseInsertionSort data sorting (took in average " + avgTime + "ns) ");
+        consoleWriter.log(" Fibonacci calculation [row] Fib(" + j + ") (took in average " + avgTime + "ns) ");
+        */
     }
 
-    private Object[] getRandomIntegerArray(int arraySize) {
-	    Object[] data = new Object[arraySize];
-	    Random rand = new Random();
-
-	    for (int i = 0; i < arraySize; i++) {
-	        data[i] = rand.nextInt(1000);
-        }
-
-	    return data;
+    private void drawLogarithmicLine(int i) {
+        updateSeries(i, (long)Math.log(i), logarithmicSeries);
     }
 
-    private void verifyOrder(Object[] sorted, Comparator comparator) throws Exception {
-	    for (int i = 0; i < sorted.length - 1; i++) {
-	        if (comparator.compare(sorted[i], sorted[i+1]) > 0) {
-	            String msg = String.format("This array is not sorted at postion [%d] '%s' AND [%d] '{%s}' \n{%s}", i, sorted[i], i+1, sorted[i+1], Arrays.toString(sorted));
-	            throw new Exception(msg);
-            }
-        }
+    private void drawLinearLine(int i) {
+        updateSeries(i, i, linearSeries);
     }
+
+    private void drawQuadraticLine(int i) {
+        updateSeries(i, i*i, quadraticSeries);
+    }
+
+    private void drawQubicLine(int i) {
+        updateSeries(i, i*i*i, qubicSeries);
+    }
+
 }
