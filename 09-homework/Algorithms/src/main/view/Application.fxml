@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -44,6 +45,12 @@
    <left>
       <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="150.0" spacing="5.0" BorderPane.alignment="CENTER">
          <children>
+            <Label text="Max value for x">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="txtMaxXValue" text="20" />
             <Label text="Techniques">
                <font>
                   <Font name="System Bold" size="14.0" />

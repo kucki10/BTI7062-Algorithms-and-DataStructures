@@ -2,21 +2,21 @@ package algorithms.examples;
 
 import algorithms.templates.Matrix;
 
-public class ColumnBasedDoubleMatrix implements Matrix<Double> {
-    private Double[][] matrix;
+public class ColumnBasedLongMatrix implements Matrix<Long> {
+    private Long[][] matrix;
 
-    public ColumnBasedDoubleMatrix(int columnNumber, int rowNumber) {
-        this.matrix = new Double[columnNumber][rowNumber];
+    public ColumnBasedLongMatrix(int columnNumber, int rowNumber) {
+        this.matrix = new Long[columnNumber][rowNumber];
 
         for (int i = 0; i < this.getWidth(); i++) {
             for (int j = 0; j < this.getHeight(); j++) {
-                this.setValue(j, i, (double)0);
+                this.setValue(j, i, (long)0);
             }
         }
     }
 
     @Override
-    public Double[][] getMatrix() {
+    public Long[][] getMatrix() {
         return this.matrix;
     }
 
@@ -31,24 +31,24 @@ public class ColumnBasedDoubleMatrix implements Matrix<Double> {
     }
 
     @Override
-    public void setValue(int row, int column, Double value) {
+    public void setValue(int row, int column, Long value) {
         this.matrix[column][row] = value;
     }
 
     @Override
-    public Double getValue(int row, int column) {
+    public Long getValue(int row, int column) {
         return this.matrix[column][row];
     }
 
     @Override
-    public Matrix<Double> multiply(Matrix<Double> matrix) {
+    public Matrix<Long> multiply(Matrix<Long> matrix) {
 
         if (this.getWidth() != matrix.getHeight()) {
             String message = String.format("(%dx%d) & (%dx%d)", this.getWidth(), this.getHeight(), matrix.getWidth(), matrix.getHeight());
             throw new IllegalArgumentException("Matrices " + message + " cannot be multiplied!");
         }
 
-        Matrix<Double> resultMatrix = new ColumnBasedDoubleMatrix(this.getHeight(), matrix.getWidth());
+        Matrix<Long> resultMatrix = new ColumnBasedLongMatrix(this.getHeight(), matrix.getWidth());
 
         for (int i = 0; i < this.getHeight(); i++) {
             for (int j = 0; j < matrix.getWidth(); j++) {
@@ -77,7 +77,7 @@ public class ColumnBasedDoubleMatrix implements Matrix<Double> {
 
 
                 for (int k = 0; k < matrix.getWidth(); k++) {
-                    double value = resultMatrix.getValue(i, j);
+                    long value = resultMatrix.getValue(i, j);
                     resultMatrix.setValue(i, j, (value + (this.getValue(i, k) * matrix.getValue(k, j))));
                 }
             }
@@ -87,9 +87,9 @@ public class ColumnBasedDoubleMatrix implements Matrix<Double> {
     }
 
     @Override
-    public Matrix<Double> potentiate(int n) {
+    public Matrix<Long> potentiate(int n) {
 
-        Matrix<Double> resultMatrix = this;
+        Matrix<Long> resultMatrix = this;
 
         while (n > 1) {
             resultMatrix = resultMatrix.multiply(this); // Square
