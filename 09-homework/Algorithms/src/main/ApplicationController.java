@@ -5,6 +5,7 @@ import algorithms.algorithms.helper.ExecutionTimer;
 import algorithms.examples.*;
 import algorithms.templates.Matrix;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
@@ -84,6 +85,13 @@ public class ApplicationController {
         columnBasedSeries.getData().clear();
         rowBasedSeries.getData().clear();
 
+        logarithmicSeries.getData().clear();
+        linearSeries.getData().clear();
+        quadraticSeries.getData().clear();
+        qubicSeries.getData().clear();
+
+
+
 		//Save the options, which calculation method should run
         //We need to save them, because they could change while calculating inside thread
         boolean isColumnBasedEnabled = cbColumnBased.isSelected();
@@ -101,24 +109,31 @@ public class ApplicationController {
             @Override
             protected Void call() {
                 //Threaded stuff
-                for (int i = 2; i <= 10 ; i += 1) {
+
+                int startValue = 1;
+                int endValue = 10;
+                int interval = 1;
+
+                for (int i = startValue; i <= endValue ; i += interval) {
                     consoleWriter.log(String.format("New Calculation run with Fibonacci(%d)\n", i));
 
                     if (isColumnBasedEnabled) {
                         columnBasedFibonacciMatrix(i, consoleWriter);
                     }
 
-                    if (isColumnBasedEnabled) {
+                    if (isRowBasedEnabled) {
                         rowBasedFibonacciMatrix(i, consoleWriter);
                     }
 
-                    drawLogarithmicLine(i);
-                    drawLinearLine(i);
-                    drawQuadraticLine(i);
-                    drawQubicLine(i);
+
 
                     consoleWriter.log(String.format("\nCalculation run with Fibonacci(%d) finished!\n\n", i));
                 }
+
+                //drawLogarithmicLine(startValue, endValue);
+                drawLinearLine(startValue, endValue, interval, consoleWriter);
+                //drawQuadraticLine(i);
+                //drawQubicLine(i);
 
                 return null;
             }
@@ -167,27 +182,25 @@ public class ApplicationController {
     }
 
     private void rowBasedFibonacciMatrix(int j, ConsoleWriteWrapper consoleWriter) {
-        /*
         long[] times = new long[verificationCount];
 
         for (int i = 0; i < verificationCount; i++) {
 
             Matrix rowBasedMatrix = new RowBasedDoubleMatrix(2, 2);
             setupInitialFibonacciMatrix(rowBasedMatrix);
-            consoleWriter.log(" Fibonacci(" + j + ") [column] \n " + rowBasedMatrix.toString());
+            consoleWriter.log(" Fibonacci(" + j + ") [row] \n " + rowBasedMatrix.toString());
 
             ExecutionTimer<Matrix> timer = new ExecutionTimer<>(() -> rowBasedMatrix.potentiate(j));
 
             Matrix result = timer.result;
-            consoleWriter.log(" Fibonacci(" + j + ") [column] (took " + timer.time + "ns) \n " + result.toString());
+            consoleWriter.log(" Fibonacci(" + j + ") [row] (took " + timer.time + "ns) \n " + result.toString());
             times[i] = timer.time;
         }
 
         long avgTime = (Arrays.stream(times).sum() / times.length);
-        updateSeries(j, avgTime, columnBasedSeries);
+        updateSeries(j, avgTime, rowBasedSeries);
 
-        consoleWriter.log(" Fibonacci(" + j + ") [column] (took in average " + avgTime + "ns) ");
-        */
+        consoleWriter.log(" Fibonacci(" + j + ") [row] (took in average " + avgTime + "ns) ");
     }
 
     private void setupInitialFibonacciMatrix(Matrix<Double> matrix) {
@@ -201,8 +214,20 @@ public class ApplicationController {
         updateSeries(i, (long)Math.log(i), logarithmicSeries);
     }
 
-    private void drawLinearLine(int i) {
-        updateSeries(i, i, linearSeries);
+    private void drawLinearLine(int startValue, int endValue, int interval, ConsoleWriteWrapper consoleWriter) {
+
+	    ObservableList<XYChart.Data<String, Long>> data = columnBasedSeries.getData();
+
+        long ordinate = data.get(0).getYValue();
+        long incline = (data.get(data.size() - 1).getYValue() - data.get(0).getYValue()) / data.size();
+
+        for (int i = startValue; i <= endValue ; i += interval) {
+            long yValue =  incline * i + ordinate;
+            updateSeries(i, yValue, linearSeries);
+        }
+
+        consoleWriter.log("Linear function = f(x) = " + incline + "x + " + ordinate);
+
     }
 
     private void drawQuadraticLine(int i) {
